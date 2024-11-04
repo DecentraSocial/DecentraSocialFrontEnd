@@ -11,7 +11,7 @@ const HeroContent = () => {
         <motion.div
             initial="hidden"
             animate="visible"
-            className="flex flex-row items-center justify-center px-20 mt-40 w-full z-[20]"
+            className="flex flex-row items-center justify-center px-20 mt-40 mb-20 w-full z-[20]"
         >
             <div className="h-full w-full flex flex-col gap-5 justify-center m-auto text-start">
                 <motion.div
@@ -49,6 +49,7 @@ const HeroContent = () => {
                     Join the Future of Social Media - Where Privacy Meets Freedom. Start Connecting Anonymously Today!
                 </motion.p>
                 <motion.a
+                    href='/auth/signin'
                     variants={slideInFromLeft(1)}
                     className="py-2 button-primary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
                 >
@@ -58,7 +59,7 @@ const HeroContent = () => {
 
             <motion.div
                 variants={slideInFromRight(0.8)}
-                className="w-1/2 h-1/2 rounded-lg flex justify-center items-center"
+                className="w-1/2 h-1/2 rounded-lg justify-center items-center hidden lg:flex"
             >
                 <Image
                     src="/hero.svg"

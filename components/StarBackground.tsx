@@ -5,6 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial, Preload } from "@react-three/drei";
 // @ts-ignore
 import * as random from "maath/random/dist/maath-random.esm";
+import { cn } from "@/utils/utils";
 
 const StarBackground = (props: any) => {
     const ref: any = useRef();
@@ -39,8 +40,11 @@ const StarBackground = (props: any) => {
     )
 };
 
-const StarsCanvas = () => (
-    <div className="w-full h-auto fixed inset-0 z-[20]">
+const StarsCanvas = ({ className }: { className?: string; }) => (
+    <div className={cn(
+        "w-full h-auto fixed inset-0 z-[20]",
+        className
+    )}>
         <Canvas camera={{ position: [0, 0, 1] }}>
             <Suspense fallback={null}>
                 <StarBackground />

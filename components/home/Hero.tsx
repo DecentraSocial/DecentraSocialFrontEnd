@@ -1,9 +1,11 @@
 import React from 'react'
 import HeroContent from './HeroContent'
+import StarsCanvas from '../StarBackground'
 
 const Hero = () => {
     return (
-        <div className="flex flex-col h-full w-full" id="about-me">
+        <div className="flex flex-col h-full w-full">
+            <StarsCanvas />
             <video
                 autoPlay
                 muted
