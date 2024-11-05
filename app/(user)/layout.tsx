@@ -4,18 +4,19 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
-import { BiLogOut, BiSolidDashboard } from "react-icons/bi";
+import { BiLogOut } from "react-icons/bi";
 import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
+import { IoHome } from "react-icons/io5";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
 
     const links = [
         {
-            label: "Dashboard",
+            label: "Home",
             href: "/home",
-            icon: <BiSolidDashboard className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+            icon: <IoHome className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Profile",
@@ -50,11 +51,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     <div>
                         <SidebarLink
                             link={{
-                                label: "Anushka Kohli",
+                                label: "John Doe",
                                 href: "/profile",
                                 icon: (
                                     <Image
-                                        src="/hero.svg"
+                                        src="/temp/sample_profile.jpg"
                                         className="h-7 w-7 flex-shrink-0 rounded-full"
                                         width={50}
                                         height={50}
@@ -78,9 +79,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 export default Layout;
 
 export const Logo = () => (
-    <Link href="/" className="flex space-x-2 items-center text-sm text-black py-1 relative z-20 -ml-3">
+    <Link href="/" className="flex space-x-1 items-center text-black py-1 relative z-20 -ml-3">
         <Image alt="DecentraSocial" src="/logo.svg" width={70} height={70} />
-        <span className="font-medium text-lg text-white whitespace-pre">DecentraSocial</span>
+        <span className="font-medium md:font-semibold text-lg md:text-2xl text-white whitespace-pre">DecentraSocial</span>
     </Link>
 );
 
