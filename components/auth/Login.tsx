@@ -6,7 +6,9 @@ import {
 } from "@anon-aadhaar/react";
 import { useEffect, useState } from "react";
 import { verify, AnonAadhaarCore } from "@anon-aadhaar/core"; // Import verification function
+import Image from "next/image";
 import StarsCanvas from "../StarBackground";
+import Link from "next/link";
 
 type LoginProps = {
     setUseTestAadhaar: (state: boolean) => void;
@@ -42,10 +44,12 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const handleVerifyProof = async () => {
         if (latestProof) {
             try {
+                console.log("latestProof:", latestProof);
                 console.log("Claim:", latestProof.claim);
                 const anonAadhaarCore = new AnonAadhaarCore("some-id", latestProof.claim, latestProof.proof);
                 const isValid = await verify(anonAadhaarCore, useTestAadhaar);
                 setVerificationStatus(isValid ? "Proof is verified!" : "Proof verification failed.");
+                console.log("isValid", isValid)
             } catch (error) {
                 setVerificationStatus("Verification error occurred.");
                 console.error("Verification Error:", error);
@@ -56,8 +60,19 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
             <StarsCanvas className="absolute inset-0 z-0" />
             <main className="flex flex-col items-center gap-8 bg-white/10 text-white rounded-2xl max-w-screen-sm mx-auto p-8 z-10 relative">
-                <h1 className="font-bold text-2xl text-center">Welcome to DecentraSocial</h1>
-                <p className="text-center">Prove your identity anonymously using your Aadhaar card.</p>
+                <div className='space-y-1'>
+                    <div className='flex items-center justify-center'>
+                        <h1 className="font-bold text-2xl text-center">Welcome back to DecentraSocial
+                        </h1>
+                        <Image
+                            src="/logo.svg"
+                            alt='logo'
+                            width={60}
+                            height={60}
+                        />
+                    </div>
+                    <p className="text-center">Prove your identity anonymously using your Aadhaar card.</p>
+                </div>
 
                 <input
                     type="text"
@@ -67,10 +82,19 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                     className="rounded px-3 py-2 border text-black border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
-                <LogInWithAnonAadhaar
-                    nullifierSeed={getNullifierSeed(username)}
-                    fieldsToReveal={["revealAgeAbove18"]}
-                />
+                <div className='flex flex-col items-center gap-y-4'>
+                    <LogInWithAnonAadhaar
+                        nullifierSeed={getNullifierSeed(username)}
+                        fieldsToReveal={["revealAgeAbove18"]}
+                    />
+                    <p>
+                        New to DecentraSocial?
+                        <button className="transform hover:-translate-y-1 transition duration-400 text-purple-300 pl-2">
+                            <Link href="/auth/signup">Sign Up</Link>
+                        </button>
+
+                    </p>
+                </div>
 
                 {useTestAadhaar ? (
                     <p>
