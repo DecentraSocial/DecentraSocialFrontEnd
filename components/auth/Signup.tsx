@@ -1,19 +1,37 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from "axios";
+import toast from 'react-hot-toast';
+import { postdetails } from '@/utils/utils';
 import StarsCanvas from '../StarBackground'
 import LabelInputContainer from '../ui/LabelInputContainer';
 import { Label } from '../ui/Label';
 import { Input } from '../ui/Input';
-import toast from 'react-hot-toast';
 
 const Signup = () => {
     const [username, setUsername] = useState("");
     const [bio, setBio] = useState("");
     const [picture, setPicture] = useState<File | null>();
+    const [picUrl, setPicUrl] = useState("");
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const setPictureUrl = async (pic: File) => {
+            const url = await postdetails(pic);
+            if (typeof url === 'string') {
+                setPicUrl(url);
+            }
+        }
+        if (picture) {
+            setPictureUrl(picture);
+        }
+    }, [picture])
+
     const handleSubmit = async () => {
         console.log("Form submitted");
         if (!username) {
@@ -21,12 +39,16 @@ const Signup = () => {
             return;
         }
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                username,
-                bio,
-                picture
-            });
-            console.log(res)
+            if (picture) {
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                    username,
+                    bio,
+                    picture: picUrl
+                });
+                console.log(res)
+                if (res)
+                    router.push("/auth/signin")
+            }
         } catch (error: any) {
             console.log(error)
             if (error.response.data.message === "User already exists") {
