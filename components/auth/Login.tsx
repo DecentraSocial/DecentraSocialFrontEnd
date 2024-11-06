@@ -7,6 +7,8 @@ import {
 import { useEffect, useState } from "react";
 import { verify, AnonAadhaarCore } from "@anon-aadhaar/core"; // Import verification function
 import Image from "next/image";
+import axios from "axios";
+import toast from "react-hot-toast";
 import StarsCanvas from "../StarBackground";
 import Link from "next/link";
 import LabelInputContainer from "../ui/LabelInputContainer";
@@ -18,6 +20,8 @@ type LoginProps = {
     useTestAadhaar: boolean;
 };
 
+
+// fix the logic to check the existence of username before calling the api
 const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const [anonAadhaar] = useAnonAadhaar();
     const [, latestProof] = useProver();
@@ -25,10 +29,29 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
     useEffect(() => {
+        const login = async () => {
+            try {
+                const body = {
+                    username,
+                    latestProof
+                }
+                console.log(body)
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
+                console.log(res)
+                // if (res)
+                //     router.push("/home");
+            } catch (error) {
+                console.log("Error signing in: ", error)
+            }
+        }
         if (anonAadhaar.status === "logged-in") {
             console.log(anonAadhaar.status);
+            // call the login api
+            if (!username)
+                toast.error("Enter your username");
+            login();
         }
-    }, [anonAadhaar]);
+    }, [anonAadhaar, username, latestProof]);
 
     const switchAadhaar = () => {
         setUseTestAadhaar(!useTestAadhaar);
@@ -47,6 +70,7 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const handleVerifyProof = async () => {
         if (latestProof) {
             try {
+                console.log("latestProof:", typeof latestProof);
                 console.log("latestProof:", latestProof);
                 console.log("Claim:", latestProof.claim);
                 const anonAadhaarCore = new AnonAadhaarCore("some-id", latestProof.claim, latestProof.proof);
@@ -89,10 +113,17 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                 </LabelInputContainer>
 
                 <div className='flex flex-col items-center gap-y-4'>
-                    <LogInWithAnonAadhaar
-                        nullifierSeed={getNullifierSeed(username)}
-                        fieldsToReveal={["revealAgeAbove18"]}
-                    />
+                    {username ? (
+                        <LogInWithAnonAadhaar
+                            nullifierSeed={getNullifierSeed(username)}
+                            fieldsToReveal={["revealAgeAbove18"]}
+                        />
+                    ) : (
+                        <button>
+                            Please enter your username to proceed
+                        </button>
+                    )}
+
                     <p>
                         New to DecentraSocial?
                         <button className="transform hover:-translate-y-1 transition duration-400 text-purple-300 pl-2">
