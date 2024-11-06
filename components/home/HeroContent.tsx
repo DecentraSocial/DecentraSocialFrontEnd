@@ -48,13 +48,22 @@ const HeroContent = () => {
                 >
                     Join the Future of Social Media - Where Privacy Meets Freedom. Start Connecting Anonymously Today!
                 </motion.p>
-                <motion.a
-                    href='/auth/signin'
-                    variants={slideInFromLeft(1)}
-                    className="py-2 button-primary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
-                >
-                    Join the Revolution
-                </motion.a>
+                <div className='flex items-center gap-4'>
+                    <motion.a
+                        href='/auth/signup'
+                        variants={slideInFromLeft(1)}
+                        className="py-2 px-4 button-primary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
+                    >
+                        Join the Revolution
+                    </motion.a>
+                    <motion.a
+                        href='/auth/signin'
+                        variants={slideInFromLeft(1)}
+                        className="py-2 px-4 button-secondary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
+                    >
+                        Sign In
+                    </motion.a>
+                </div>
             </div>
 
             <motion.div
