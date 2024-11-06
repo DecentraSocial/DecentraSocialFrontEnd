@@ -33,7 +33,6 @@ const Signup = () => {
     }, [picture])
 
     const handleSubmit = async () => {
-        console.log("Form submitted");
         if (!username) {
             toast.error("Please enter a username");
             return;
@@ -50,7 +49,7 @@ const Signup = () => {
                     router.push("/auth/signin")
             }
         } catch (error: any) {
-            console.log(error)
+            console.log("Error signing up: ", error)
             if (error.response.data.message === "User already exists") {
                 toast.error("User already exists")
             } else {
