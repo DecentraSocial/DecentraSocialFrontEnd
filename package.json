@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anon-aadhaar/core": "^2.4.0",
     "@anon-aadhaar/react": "^2.4.0",
+    "@radix-ui/react-label": "^2.1.0",
     "@react-three/drei": "^9.111.5",
     "@react-three/fiber": "^8.17.6",
     "axios": "^1.7.7",

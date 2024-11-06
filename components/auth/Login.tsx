@@ -9,6 +9,9 @@ import { verify, AnonAadhaarCore } from "@anon-aadhaar/core"; // Import verifica
 import Image from "next/image";
 import StarsCanvas from "../StarBackground";
 import Link from "next/link";
+import LabelInputContainer from "../ui/LabelInputContainer";
+import { Label } from "../ui/Label";
+import { Input } from "../ui/Input";
 
 type LoginProps = {
     setUseTestAadhaar: (state: boolean) => void;
@@ -74,13 +77,16 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                     <p className="text-center">Prove your identity anonymously using your Aadhaar card.</p>
                 </div>
 
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your username"
-                    className="rounded px-3 py-2 border text-black border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <LabelInputContainer>
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                        id='username'
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter a unique username"
+                    />
+                </LabelInputContainer>
 
                 <div className='flex flex-col items-center gap-y-4'>
                     <LogInWithAnonAadhaar
