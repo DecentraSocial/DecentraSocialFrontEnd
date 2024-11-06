@@ -27,6 +27,7 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     useEffect(() => {
         if (anonAadhaar.status === "logged-in") {
             console.log(anonAadhaar.status);
+            // call the login api
         }
     }, [anonAadhaar]);
 

@@ -1,20 +1,40 @@
 "use client";
 
 import { useState } from 'react';
-import StarsCanvas from '../StarBackground'
 import Image from 'next/image';
 import Link from 'next/link';
+import axios from "axios";
+import StarsCanvas from '../StarBackground'
 import LabelInputContainer from '../ui/LabelInputContainer';
 import { Label } from '../ui/Label';
 import { Input } from '../ui/Input';
+import toast from 'react-hot-toast';
 
 const Signup = () => {
     const [username, setUsername] = useState("");
     const [bio, setBio] = useState("");
     const [picture, setPicture] = useState<File | null>();
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         console.log("Form submitted");
+        if (!username) {
+            toast.error("Please enter a username");
+            return;
+        }
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                username,
+                bio,
+                picture
+            });
+            console.log(res)
+        } catch (error: any) {
+            console.log(error)
+            if (error.response.data.message === "User already exists") {
+                toast.error("User already exists")
+            } else {
+                toast.error("Error signing up! Please try again.")
+            }
+        }
     };
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
@@ -66,6 +86,7 @@ const Signup = () => {
                 <div className='flex flex-col items-center gap-y-2'>
                     <button
                         type="button"
+                        onClick={handleSubmit}
                         className="py-2 px-4 button-primary text-center text-white cursor-pointer rounded-lg max-w-[200px]"
                     >
                         Sign Up
