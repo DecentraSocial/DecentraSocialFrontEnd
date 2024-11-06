@@ -54,6 +54,13 @@
   box-shadow: inset 0 0 12px #bf97ff70;
 }
 
+.button-secondary {
+  box-shadow: inset 0 0 12px #bf97ff3d;
+}
+.button-secondary:hover {
+  box-shadow: inset 0 0 12px #bf97ff70;
+}
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hidden {
   -ms-overflow-style: none; /* IE and Edge */
