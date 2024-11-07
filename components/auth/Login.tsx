@@ -9,6 +9,7 @@ import { verify, AnonAadhaarCore } from "@anon-aadhaar/core"; // Import verifica
 import Image from "next/image";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { getNullifierSeed } from "@/utils/nullifierSeed";
 import StarsCanvas from "../StarBackground";
 import Link from "next/link";
 import LabelInputContainer from "../ui/LabelInputContainer";
@@ -51,19 +52,10 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                 toast.error("Enter your username");
             login();
         }
-    }, [anonAadhaar, username, latestProof]);
+    }, [anonAadhaar, latestProof]);
 
     const switchAadhaar = () => {
         setUseTestAadhaar(!useTestAadhaar);
-    };
-
-    const getNullifierSeed = (username: string) => {
-        let hash = 0;
-        for (let i = 0; i < username.length; i++) {
-            hash = hash * 31 + username.charCodeAt(i);
-            hash = hash & hash;
-        }
-        return Math.abs(hash);
     };
 
     // Function to verify the proof using anon-aadhaar core package

@@ -14,15 +14,14 @@ const AadharProvider = () => {
     return (
         <>
             {ready ? (
-                <AnonAadhaarProvider
-                    _useTestAadhaar={useTestAadhaar}
-                    _appName="Anon Aadhaar"
-                >
-                    <Login setUseTestAadhaar={setUseTestAadhaar}
-                        useTestAadhaar={useTestAadhaar} />
-                </AnonAadhaarProvider>
+                // <AnonAadhaarProvider
+                //     _useTestAadhaar={useTestAadhaar}
+                //     _appName="Anon Aadhaar"
+                // >
+                <Login setUseTestAadhaar={setUseTestAadhaar}
+                    useTestAadhaar={useTestAadhaar} />
+                // </AnonAadhaarProvider>
             ) : null}
-            Hello
         </>
     )
 }
