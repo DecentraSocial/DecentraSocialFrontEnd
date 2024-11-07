@@ -10,13 +10,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { setAuthCookie } from "@/app/setCookie";
 import { getNullifierSeed } from "@/utils/nullifierSeed";
 import StarsCanvas from "../StarBackground";
 import Link from "next/link";
 import LabelInputContainer from "../ui/LabelInputContainer";
 import { Label } from "../ui/Label";
 import { Input } from "../ui/Input";
-import { setAuthCookie } from "@/app/setCookie";
 
 type LoginProps = {
     setUseTestAadhaar: (state: boolean) => void;
@@ -33,35 +33,6 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const router = useRouter();
 
     useEffect(() => {
-        const login = async () => {
-            try {
-                const body = {
-                    username,
-                    latestProof
-                }
-                console.log(body)
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
-                console.log(res);
-
-
-                // Save user session information if logged in successfully
-                if (res.data.isLoggedIn) {
-                    // Save the token in cookies
-                    setAuthCookie(res.data.token)
-                    toast.success("Logged in successfully!");
-                    // Redirect to the home page
-                    router.push('/home');
-                } else {
-                    toast.error('Login failed. Invalid credentials.');
-                }
-            } catch (error: any) {
-                console.log("Error signing in: ", error);
-                if (error.response.data.message === "User does not exist")
-                    toast.error("User does not exist");
-                else
-                    toast.error("Login failed. Please try again.");
-            }
-        }
         if (anonAadhaar.status === "logged-in") {
             console.log(anonAadhaar.status);
             // call the login api
@@ -69,7 +40,35 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                 toast.error("Enter your username");
             login();
         }
-    }, [anonAadhaar, latestProof]);
+    }, [anonAadhaar]);
+    const login = async () => {
+        try {
+            const body = {
+                username,
+                latestProof
+            }
+            console.log(body)
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
+            console.log(res);
+
+            // Save user session information if logged in successfully
+            if (res.data.isLoggedIn) {
+                // Save the token in cookies
+                setAuthCookie(res.data.token)
+                toast.success("Logged in successfully!");
+                // Redirect to the home page
+                router.push('/home');
+            } else {
+                toast.error('Login failed. Invalid credentials.');
+            }
+        } catch (error: any){
+            console.log("Error signing in: ", error);
+            if (error.response.data.message === "User does not exist")
+                toast.error("User does not exist");
+            else
+                toast.error("Login failed. Please try again.");
+        }
+    }
 
     const switchAadhaar = () => {
         setUseTestAadhaar(!useTestAadhaar);

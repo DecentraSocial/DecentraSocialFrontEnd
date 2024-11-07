@@ -1,8 +1,10 @@
 // components/Layout.tsx
 "use client";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { deleteCookie } from "../setCookie";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import { BiLogOut } from "react-icons/bi";
 import { LuUser2 } from "react-icons/lu";
@@ -11,6 +13,13 @@ import { IoHome } from "react-icons/io5";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
+    const router=useRouter();
+
+    const deletehandler=async(e:any)=>{
+        e.preventDefault();
+        deleteCookie();
+        router.push("/auth/signin");
+    }
 
     const links = [
         {
@@ -28,11 +37,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             href: "/settings",
             icon: <IoMdSettings className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
-        {
-            label: "Logout",
-            href: "#",
-            icon: <BiLogOut className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
-        },
     ];
 
     return (
@@ -46,7 +50,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                             {links.map((link, idx) => (
                                 <SidebarLink key={idx} link={link} />
                             ))}
+                            <button className="flex items-center justify-start gap-4 group/sidebar py-2" onClick={(e)=>deletehandler(e)}> 
+                            <BiLogOut className="text-neutral-200 h-5 w-5 flex-shrink-0" /> 
+                            <span className="text-neutral-200 md:text-xl group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">Logout</span>          
+                            </button>
                         </div>
+                        
                     </div>
                     <div>
                         <SidebarLink

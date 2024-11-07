@@ -11,3 +11,7 @@ export async function setAuthCookie(token: string) {
     path: "/",
   });
 }
+
+export async function deleteCookie() {
+  (await cookies()).delete('authTokenDecentra')
+}

@@ -12,6 +12,7 @@ import {
     useAnonAadhaar,
     useProver,
 } from "@anon-aadhaar/react";
+import { setAuthCookie } from "@/app/setCookie";
 import { getNullifierSeed } from '@/utils/nullifierSeed';
 import { postdetails } from '@/utils/utils';
 import StarsCanvas from '../StarBackground'
@@ -43,32 +44,7 @@ const Signup = () => {
     }, [picture])
 
     useEffect(() => {
-        const signup = async () => {
-            try {
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                    username,
-                    bio,
-                    picture: picture ? picUrl : "",
-                    latestProof
-                });
-                console.log(res)
-                // Save user session information if logged in successfully
-                if (res.data.isLoggedIn) {
-                    localStorage.setItem("authTokenDecentra", res.data.token);
-                    toast.success("Signed up successfully!");
-                    router.push("/home");
-                }
-            } catch (error: any) {
-                console.log("Error signing up: ", error)
-                if (error.response.data.message === "User already exists") {
-                    toast.error("User already exists")
-                } else {
-                    toast.error("Error signing up! Please try again.")
-                }
-            }
-        }
         console.log("anonAadhaar: ", anonAadhaar)
-        console.log("anonAadhaar.status: ", anonAadhaar.status)
         if (anonAadhaar.status === "logged-in") {
             console.log(anonAadhaar.status);
             // call the register api
@@ -76,7 +52,32 @@ const Signup = () => {
                 toast.error("Enter your username");
             signup();
         }
-    }, [anonAadhaar, latestProof]);
+    }, [anonAadhaar]);
+
+    const signup = async () => {
+        try {
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                username,
+                bio,
+                picture: picture ? picUrl : "",
+                latestProof
+            });
+            console.log(res)
+            // Save user session information if logged in successfully
+            if (res.data.isLoggedIn) {
+                setAuthCookie(res.data.token)
+                toast.success("Signed up successfully!");
+                router.push("/home");
+            }
+        } catch (error: any) {
+            console.log("Error signing up: ", error)
+            if (error.response.data.message === "User already exists") {
+                toast.error("User already exists")
+            } else {
+                toast.error("Error signing up! Please try again.")
+            }
+        }
+    }
 
     const handleSubmit = async () => {
         if (!username) {
