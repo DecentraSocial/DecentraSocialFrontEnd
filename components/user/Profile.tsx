@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa6";
+import { PostType, ProfileType } from "@/utils/types";
+import Post from "./Post";
 
 // Example post data structure based on postSchema
-const examplePosts = [
+
+const examplePosts: PostType[] = [
     {
         _id: "1",
         userId: "user123",
@@ -35,6 +37,17 @@ const examplePosts = [
         comments: [],
         createdAt: "11/5/2024, 10:03:51 PM",
     },
+    {
+        _id: "2",
+        userId: "user123",
+        username: "john_doe",
+        post: "Another beautiful sunset 🌅",
+        images: [],
+        videos: [],
+        likes: ["user789"],
+        comments: [],
+        createdAt: "11/5/2024, 10:03:51 PM",
+    },
 ];
 
 // Dummy data for followers and following
@@ -53,7 +66,6 @@ const followingData = [
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState("posts");
-    const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
         followingData.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     );
@@ -63,20 +75,12 @@ const Profile = () => {
     const currentUserId = "user456";
 
     // Sample user data
-    const profile = {
+    const profile: ProfileType = {
         username: "john_doe",
         bio: "Adventurer, traveler, and photographer.",
         profilePicture: "/temp/sample_profile.jpg",
         followers: 120,
         following: 75,
-    };
-
-    // Function to toggle comments visibility
-    const toggleComments = (postId: string) => {
-        setShowComments((prev) => ({
-            ...prev,
-            [postId]: !prev[postId],
-        }));
     };
 
     // Toggle follow/unfollow status for a user
@@ -91,122 +95,7 @@ const Profile = () => {
 
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <div className="flex flex-col gap-6 max-w-5xl place-self-center">
-            {examplePosts.map((post, index) => (
-                <motion.div
-                    key={post._id}
-                    className="bg-neutral-800 p-4 rounded-lg text-white"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                >
-                    <div className="flex items-center gap-3 mb-4">
-                        <Image
-                            width={100}
-                            height={100}
-                            src={profile.profilePicture}
-                            alt="User"
-                            className="w-10 h-10 rounded-full border border-neutral-700"
-                        />
-                        <div>
-                            <p className="font-semibold">{post.username}</p>
-                            <p className="text-sm text-neutral-400">{post.createdAt.toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <p className="mb-4">{post.post}</p>
-                    {/* Render images if present */}
-                    {post.images.length > 0 && (
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                            {post.images.map((image, i) => (
-                                <Image
-                                    width={500}
-                                    height={500}
-                                    key={i}
-                                    src={image}
-                                    alt="Post Image"
-                                    className="w-full max-h-[44vh] object-cover rounded-lg"
-                                />
-                            ))}
-                        </div>
-                    )}
-                    {/* Render videos if present */}
-                    {post.videos.length > 0 && (
-                        <div className="mt-4 grid gap-4 grid-cols-1 md:grid-cols-2">
-                            {post.videos.map((video, i) => (
-                                <video key={i} controls className="w-full max-h-[44vh] rounded-lg">
-                                    <source src={video} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Icons for likes and comments */}
-                    <div className="flex items-center gap-x-4 mt-4">
-                        {/* Like button with animation and hover effect */}
-                        <div className="flex items-center">
-                            <motion.div
-                                whileHover={{
-                                    scale: 1.2,
-                                    backgroundColor: "#df474754",
-                                    borderRadius: "50%",
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300,
-                                    damping: 15,
-                                }}
-                                className="p-2 cursor-pointer"
-                            >
-                                {post.likes.includes(currentUserId) ? (
-                                    <FaHeart className="text-red-500 hover:text-red-600" />
-                                ) : (
-                                    <FaRegHeart className="text-gray-400 hover:text-red-500" />
-                                )}
-                            </motion.div>
-                            <span className="font-semibold">{post.likes.length}</span>
-                        </div>
-
-                        {/* Comment button with animation and hover effect */}
-                        <div className="flex items-center">
-                            <motion.div
-                                whileHover={{
-                                    scale: 1.2,
-                                    backgroundColor: "#d1e7ff75",
-                                    borderRadius: "50%",
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 300,
-                                    damping: 15,
-                                }}
-                                className="p-2 cursor-pointer"
-                                onClick={() => toggleComments(post._id)}
-                            >
-                                <FaRegComment className="text-gray-400 hover:text-blue-500" />
-                            </motion.div>
-                            <span className="font-semibold">{post.comments.length}</span>
-                        </div>
-                    </div>
-                    {/* Conditional rendering for comments */}
-                    {showComments[post._id] && post.comments.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="mt-4 space-y-2"
-                        >
-                            <h3 className="font-semibold">Comments</h3>
-                            {post.comments.map((comment) => (
-                                <div key={comment._id} className="text-neutral-400 text-sm">
-                                    <span className="font-semibold">{comment.userInfo}:</span> {comment.comment}
-                                </div>
-                            ))}
-                        </motion.div>
-                    )}
-                </motion.div>
-            ))}
-        </div>
+        <Post posts={examplePosts} user={profile} currentUserId={currentUserId} />
     );
 
     const renderFollowersFollowing = () => {
