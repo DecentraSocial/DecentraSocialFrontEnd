@@ -7,6 +7,7 @@ import {
 import { useEffect, useState } from "react";
 import { verify, AnonAadhaarCore } from "@anon-aadhaar/core"; // Import verification function
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getNullifierSeed } from "@/utils/nullifierSeed";
@@ -15,6 +16,7 @@ import Link from "next/link";
 import LabelInputContainer from "../ui/LabelInputContainer";
 import { Label } from "../ui/Label";
 import { Input } from "../ui/Input";
+import { setAuthCookie } from "@/app/setCookie";
 
 type LoginProps = {
     setUseTestAadhaar: (state: boolean) => void;
@@ -28,6 +30,7 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const [, latestProof] = useProver();
     const [username, setUsername] = useState("");
     const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const login = async () => {
@@ -38,11 +41,25 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
                 }
                 console.log(body)
                 const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
-                console.log(res)
-                // if (res)
-                //     router.push("/home");
-            } catch (error) {
-                console.log("Error signing in: ", error)
+                console.log(res);
+
+
+                // Save user session information if logged in successfully
+                if (res.data.isLoggedIn) {
+                    // Save the token in cookies
+                    setAuthCookie(res.data.token)
+                    toast.success("Logged in successfully!");
+                    // Redirect to the home page
+                    router.push('/home');
+                } else {
+                    toast.error('Login failed. Invalid credentials.');
+                }
+            } catch (error: any) {
+                console.log("Error signing in: ", error);
+                if (error.response.data.message === "User does not exist")
+                    toast.error("User does not exist");
+                else
+                    toast.error("Login failed. Please try again.");
             }
         }
         if (anonAadhaar.status === "logged-in") {

@@ -52,9 +52,12 @@ const Signup = () => {
                     latestProof
                 });
                 console.log(res)
-                // if (res)
-                //     router.push("/auth/home")
-                console.log(res)
+                // Save user session information if logged in successfully
+                if (res.data.isLoggedIn) {
+                    localStorage.setItem("authTokenDecentra", res.data.token);
+                    toast.success("Signed up successfully!");
+                    router.push("/home");
+                }
             } catch (error: any) {
                 console.log("Error signing up: ", error)
                 if (error.response.data.message === "User already exists") {
