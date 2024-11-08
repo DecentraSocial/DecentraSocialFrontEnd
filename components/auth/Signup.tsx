@@ -56,6 +56,7 @@ const Signup = () => {
 
     const signup = async () => {
         try {
+            console.log("latestProof: ", latestProof)
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
                 username,
                 bio,

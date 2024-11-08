@@ -7,6 +7,7 @@ import { FaRegImage, FaVideo, FaFaceSmile } from "react-icons/fa6";
 import { PostType } from "@/utils/types";
 import Post from "./Post";
 import GlowButton from "../ui/GlowButton";
+import SuggestedUsers from "./SuggestedUsers";
 
 const initialPosts: PostType[] = [
     {
@@ -181,14 +182,26 @@ const HomeFeed = () => {
                 </div>
             </motion.div>
 
-            {/* Render posts */}
-            <Post posts={posts} user={{
-                username: "john_doe",
-                bio: "Adventurer, traveler, and photographer.",
-                profilePicture: "/temp/sample_profile.jpg",
-                followers: 120,
-                following: 75,
-            }} currentUserId="currentUserId" />
+            <div className="grid lg:grid-cols-8 gap-5">
+                {/* Render posts */}
+                <Post
+                    className="col-span-6"
+                    posts={posts}
+                    user={{
+                        username: "john_doe",
+                        bio: "Adventurer, traveler, and photographer.",
+                        profilePicture: "/temp/sample_profile.jpg",
+                        followers: 120,
+                        following: 75,
+                    }}
+                    currentUserId="currentUserId"
+                />
+
+                {/* Suggested users section */}
+                <div className="hidden lg:block col-span-2">
+                    <SuggestedUsers />
+                </div>
+            </div>
         </div>
     );
 };

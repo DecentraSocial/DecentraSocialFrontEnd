@@ -5,14 +5,16 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa6";
 import { PostType, ProfileType } from "@/utils/types";
+import { cn } from "@/utils/utils";
 
 interface PostProps {
     posts: PostType[];
     user: ProfileType;
     currentUserId: string;
+    className?: string;
 }
 
-const Post = ({ posts, user, currentUserId }: PostProps) => {
+const Post = ({ posts, user, currentUserId, className }: PostProps) => {
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     // Function to toggle comments visibility
     const toggleComments = (postId: string) => {
@@ -22,7 +24,10 @@ const Post = ({ posts, user, currentUserId }: PostProps) => {
         }));
     };
     return (
-        <div className="flex flex-col gap-6 w-full max-w-5xl place-self-center">
+        <div className={cn(
+            "flex flex-col gap-6 w-full max-w-5xl place-self-center",
+            className
+        )}>
             {posts.map((post, index) => (
                 <motion.div
                     key={post._id}
