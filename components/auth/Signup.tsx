@@ -7,18 +7,87 @@ import Link from 'next/link';
 import axios from "axios";
 import toast from 'react-hot-toast';
 import {
-    AnonAadhaarProvider,
     LogInWithAnonAadhaar,
     useAnonAadhaar,
     useProver,
 } from "@anon-aadhaar/react";
 import { setAuthCookie } from "@/app/setCookie";
 import { getNullifierSeed } from '@/utils/nullifierSeed';
-import { postdetails } from '@/utils/utils';
+import { uploadMedia } from '@/utils/utils';
 import StarsCanvas from '../StarBackground'
 import LabelInputContainer from '../ui/LabelInputContainer';
 import { Label } from '../ui/Label';
 import { Input } from '../ui/Input';
+
+const proof = {
+    "type": "anon-aadhaar",
+    "id": "92b57988-c92f-41b5-8541-776a5f196f0a",
+    "claim": {
+        "pubKey": [
+            "1388327314901276273497603053049831573",
+            "1288770065561824590310204825945893597",
+            "347944061738351220497875430520412587",
+            "2203925894492670478365294907843212566",
+            "349976987200639440095663304686403400",
+            "1858127966046453767090107272117170604",
+            "98944980972575232708304306395068367",
+            "72308052871443505790154443070931847",
+            "171399417356978051390838864702414084",
+            "2253675451749563963224572465143971881",
+            "442208872747909568780648632811615762",
+            "683454141347236191691262238349526517",
+            "1671407496108483722945952438837825234",
+            "1087766175397090383868214821691649424",
+            "13091038325609962763769551933681621",
+            "2021829298345573369225939328286843929",
+            "3294796001033061829975954746704750"
+        ],
+        "signalHash": "10010552857485068401460384516712912466659718519570795790728634837432493097374",
+        "ageAbove18": true,
+        "gender": null,
+        "pincode": null,
+        "state": null
+    },
+    "proof": {
+        "groth16Proof": {
+            "pi_a": [
+                "18899954804066570070478420876020428113331419319671430218000858994938855222008",
+                "6691801593129256311271407480792799086776645787549257067668850353846937522807",
+                "1"
+            ],
+            "pi_b": [
+                [
+                    "7012436179191440130237870514785549126325409958184052180208595171379718643540",
+                    "13387654599470660922212914382661881147332967801978400485295004827703101681479"
+                ],
+                [
+                    "16368123913144782992335437975704437679422136033620812718832071328188107380701",
+                    "16511818283089870217239008373282613683054168098454399665382402076150305030107"
+                ],
+                [
+                    "1",
+                    "0"
+                ]
+            ],
+            "pi_c": [
+                "6163498801149870012904019137641691540976106858671196216095763271901415421602",
+                "3271972489240148897366887228294541781233141046385806493305415607275260267912",
+                "1"
+            ],
+            "protocol": "groth16",
+            "curve": "bn128"
+        },
+        "pubkeyHash": "18063425702624337643644061197836918910810808173893535653269228433734128853484",
+        "timestamp": "1730723400",
+        "nullifierSeed": "108274800",
+        "nullifier": "1550100262067717086011651207042883666239885390709865158044783080948713742007",
+        "signalHash": "10010552857485068401460384516712912466659718519570795790728634837432493097374",
+        "ageAbove18": "1",
+        "gender": "0",
+        "pincode": "0",
+        "state": "0"
+    }
+}
 
 const Signup = () => {
     const [anonAadhaar] = useAnonAadhaar();
@@ -33,7 +102,7 @@ const Signup = () => {
 
     useEffect(() => {
         const setPictureUrl = async (pic: File) => {
-            const url = await postdetails(pic);
+            const url = await uploadMedia(pic, "image");
             if (typeof url === 'string') {
                 setPicUrl(url);
             }
@@ -48,26 +117,33 @@ const Signup = () => {
         if (anonAadhaar.status === "logged-in") {
             console.log(anonAadhaar.status);
             // call the register api
-            if (!username)
-                toast.error("Enter your username");
             signup();
         }
     }, [anonAadhaar]);
 
     const signup = async () => {
+        if (!username)
+            toast.error("Enter your username");
+        console.log("latestProof: ", latestProof)
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                username,
-                bio,
-                picture: picture ? picUrl : "",
-                latestProof
-            });
-            console.log(res)
-            // Save user session information if logged in successfully
-            if (res.data.isLoggedIn) {
-                setAuthCookie(res.data.token)
-                toast.success("Signed up successfully!");
-                router.push("/home");
+            if (latestProof) {
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                    username,
+                    bio,
+                    picture: picture ? picUrl : "",
+                    // latestProof,
+                    latestProof: latestProof !== undefined ? latestProof : proof,
+                });
+                console.log(res)
+                // Save user session information if logged in successfully
+                if (res.data.isLoggedIn) {
+                    setAuthCookie(res.data.token)
+                    toast.success("Signed up successfully!");
+                    router.push("/home");
+                }
+            } else {
+                toast.error("Proof could not be generated. Try again.")
+                return;
             }
         } catch (error: any) {
             console.log("Error signing up: ", error)
@@ -190,15 +266,10 @@ const Signup = () => {
                                     Previous
                                 </button>
                                 {username ? (
-                                    // <AnonAadhaarProvider
-                                    //     _useTestAadhaar={false}
-                                    //     _appName="Anon Aadhaar"
-                                    // >
                                     <LogInWithAnonAadhaar
                                         nullifierSeed={getNullifierSeed(username)}
                                         fieldsToReveal={["revealAgeAbove18"]}
                                     />
-                                    // </AnonAadhaarProvider>
                                 ) : (
                                     <p className='text-red-400'>
                                         Please enter your username to proceed

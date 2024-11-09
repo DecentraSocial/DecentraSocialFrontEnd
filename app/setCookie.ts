@@ -13,5 +13,11 @@ export async function setAuthCookie(token: string) {
 }
 
 export async function deleteCookie() {
-  (await cookies()).delete('authTokenDecentra')
+  (await cookies()).delete("authTokenDecentra");
+}
+
+export async function getCookie() {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get("authTokenDecentra");
+  return cookie;
 }
