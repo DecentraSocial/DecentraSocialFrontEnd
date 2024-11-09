@@ -3,11 +3,11 @@ import * as React from "react";
 import { cn } from "@/utils/utils";
 import { useMotionTemplate, useMotionValue, motion } from "framer-motion";
 
-export interface InputProps
-    extends React.InputHTMLAttributes<HTMLInputElement> { }
+export interface TextareaProps
+    extends React.TextareaHTMLAttributes<HTMLTextAreaElement> { }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type, ...props }, ref) => {
+const TextArea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+    ({ className, ...props }, ref) => {
         const radius = 100; // change this to increase the rdaius of the hover effect
         const [visible, setVisible] = React.useState(false);
 
@@ -36,10 +36,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 onMouseLeave={() => setVisible(false)}
                 className="p-[2px] rounded-lg transition duration-300 group/input"
             >
-                <input
-                    type={type}
+                <textarea
                     className={cn(
-                        `flex h-10 w-full border-none bg-black text-white shadow-input rounded-md px-3 py-2 text-sm file:border-0 file:bg-transparent 
+                        `flex w-full border-none bg-black text-white shadow-input rounded-md px-3 py-2 text-sm file:border-0 file:bg-transparent 
           file:text-sm file:font-medium file:text-neutral-400 placeholder:text-neutral-400
           focus-visible:outline-none focus-visible:ring-[2px]  focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-600
            disabled:cursor-not-allowed disabled:opacity-50
@@ -55,6 +54,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         );
     }
 );
-Input.displayName = "Input";
 
-export { Input };
+TextArea.displayName = "TextArea"
+export default TextArea

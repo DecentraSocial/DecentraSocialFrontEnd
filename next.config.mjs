@@ -8,6 +8,15 @@ const nextConfig = {
     };
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "res.cloudinary.com",
+        port: "",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
