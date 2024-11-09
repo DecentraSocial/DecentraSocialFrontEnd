@@ -7,8 +7,12 @@ import toast from "react-hot-toast"; .0
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa6";
 import { getCookie } from "@/app/setCookie";
 import { PostType } from "@/utils/types";
-import { likePost } from "@/utils/post";
+import { commentPost, likePost } from "@/utils/post";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
+import LabelInputContainer from "../ui/LabelInputContainer";
+import { Label } from "../ui/Label";
+import { Input } from "../ui/Input";
+import GlowButton from "../ui/GlowButton";
 
 interface PostProps {
     posts: PostType[];
@@ -18,6 +22,7 @@ interface PostProps {
 
 const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
+    const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
     // Function to toggle comments visibility
     const toggleComments = (postId: string) => {
         setShowComments((prev) => ({
@@ -48,8 +53,40 @@ const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
         }
     }
     // Comment
-    const handleComment = async () => {
+    const handleComment = async (postId: string) => {
+        const token = await getCookie();
+        const commentRes = await commentPost(token!.value, postId, commentText[postId]);
+        if (!commentRes.error) {
+            // Update the posts state to reflect the new comment
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post._id === postId
+                        ? {
+                            ...post,
+                            comments: [
+                                ...post.comments,
+                                {
+                                    _id: commentRes.res._id, // Assuming the response contains the new comment ID
+                                    userInfo: {
+                                        _id: currentUserId,
+                                        username: 'YourUsername', // Replace with current user's username or relevant value
+                                        bio: 'YourUserBio', // Replace with current user's bio if needed
+                                        picture: 'YourUserPicture', // Replace with current user's picture URL if available,
+                                        createdAt: new Date().toISOString(), // Example property
+                                        updatedAt: new Date().toISOString(),
+                                    },
+                                    comment: commentText[postId],
+                                },
+                            ],
+                        }
+                        : post
+                )
+            );
 
+            setCommentText((prev) => ({ ...prev, [postId]: '' }));
+        } else {
+            toast.error("Error commenting on the post!")
+        }
     }
     return (
         <div>
@@ -143,7 +180,7 @@ const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
                                 </div>
 
                                 {/* Comment */}
-                                <div className="flex items-center" onClick={handleComment}>
+                                <div className="flex items-center">
                                     <motion.div
                                         whileHover={{
                                             scale: 1.2,
@@ -171,10 +208,35 @@ const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
                                     transition={{ duration: 0.3 }}
                                     className="mt-2 pt-2 space-y-2 border-t border-neutral-700"
                                 >
+                                    {/* New comment */}
+                                    <div className="flex items-center gap-2 mt-2 mb-4">
+                                        <input
+                                            type="text"
+                                            className="flex-1 p-2 text-sm rounded-lg bg-neutral-700 text-white border border-neutral-600 focus:outline-none"
+                                            placeholder="Write a comment..."
+                                            value={commentText[post._id] || ''}
+                                            onChange={(e) =>
+                                                setCommentText((prev) => ({
+                                                    ...prev,
+                                                    [post._id]: e.target.value,
+                                                }))
+                                            }
+                                        />
+                                        <button
+                                            onClick={() => handleComment(post._id)}
+                                            className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                                        >
+                                            Comment
+                                        </button>
+                                    </div>
                                     {/* <h3 className="font-semibold">Comments</h3> */}
+                                    {/* All comments */}
                                     {post.comments.length > 0 && post.comments.map((comment) => (
                                         <div key={comment._id} className="text-white text-sm">
-                                            <span className="font-semibold">{comment.userInfo}:</span> {comment.comment}
+                                            <span className="font-semibold">
+                                                {comment.userInfo && comment.userInfo.username ? comment.userInfo.username : 'Anonymous'}: &nbsp;
+                                            </span>
+                                            {comment.comment}
                                         </div>
                                     ))}
                                     {post.comments.length === 0 && (
