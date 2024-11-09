@@ -34,7 +34,6 @@ export const likePost = async (token: string, postId: string) => {
     return { res: likePostRes.data, error: false };
   } catch (error: any) {
     console.log("Error creating post: ", error);
-    if (error.status === 400) return { res: "Already Liked", error: true };
     return { res: error, error: true };
   }
 };

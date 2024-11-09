@@ -36,15 +36,24 @@ const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
         const token = await getCookie();
         const likeRes = await likePost(token!.value, postId);
         if (!likeRes.error) {
-            console.log("LikeRes: ", likeRes)
             // Update the posts state to reflect the new like
-            setPosts((prevPosts) =>
-                prevPosts.map(post =>
-                    post._id === postId
-                        ? { ...post, likes: [...post.likes, currentUserId] }
-                        : post
-                )
-            );
+            if (likeRes.res.message === "post has been liked sucessfully") {
+                setPosts((prevPosts) =>
+                    prevPosts.map(post =>
+                        post._id === postId
+                            ? { ...post, likes: [...post.likes, currentUserId] }
+                            : post
+                    )
+                );
+            } else if (likeRes.res.message === "post has been unliked sucessfully") {
+                setPosts((prevPosts) =>
+                    prevPosts.map(post =>
+                        post._id === postId
+                            ? { ...post, likes: post.likes.filter(userId => userId !== currentUserId) }
+                            : post
+                    )
+                );
+            }
         } else {
             if (likeRes.res === "Already Liked")
                 toast.error("You have already liked the post!");
@@ -66,16 +75,16 @@ const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
                             comments: [
                                 ...post.comments,
                                 {
-                                    _id: commentRes.res._id, // Assuming the response contains the new comment ID
+                                    _id: commentRes.res.comment._id,
                                     userInfo: {
                                         _id: currentUserId,
-                                        username: 'YourUsername', // Replace with current user's username or relevant value
-                                        bio: 'YourUserBio', // Replace with current user's bio if needed
-                                        picture: 'YourUserPicture', // Replace with current user's picture URL if available,
-                                        createdAt: new Date().toISOString(), // Example property
-                                        updatedAt: new Date().toISOString(),
+                                        username: commentRes.res.comment.userInfo.username,
+                                        bio: commentRes.res.comment.userInfo.bio,
+                                        picture: commentRes.res.comment.userInfo.picture,
+                                        createdAt: commentRes.res.comment.userInfo.createdAt,
+                                        updatedAt: commentRes.res.comment.userInfo.updatedAt,
                                     },
-                                    comment: commentText[postId],
+                                    comment: commentRes.res.comment.comment,
                                 },
                             ],
                         }
