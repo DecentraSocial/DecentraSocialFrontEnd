@@ -253,7 +253,7 @@ const HomeFeed = () => {
             </motion.div>
 
             {/* Render posts */}
-            <Post posts={posts} currentUserId="currentUserId" />
+            <Post posts={posts} currentUserId={user._id} setPosts={setPosts} />
         </div>
     );
 };

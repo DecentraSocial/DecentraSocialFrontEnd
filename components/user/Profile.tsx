@@ -18,7 +18,7 @@ const Profile = () => {
     const [user, setUser] = useState<ProfileType>();
     const [followers, setFollowers] = useState<Following[]>();
     const [following, setFollowing] = useState<Following[]>();
-    const [posts, setPosts] = useState<PostType[]>();
+    const [posts, setPosts] = useState<PostType[]>([]);
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
@@ -91,7 +91,7 @@ const Profile = () => {
 
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <Post posts={posts!} currentUserId={currentUserId} />
+        <Post posts={posts!} currentUserId={user!._id} setPosts={setPosts} />
     );
 
     const renderFollowersFollowing = () => {

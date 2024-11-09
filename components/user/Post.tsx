@@ -3,16 +3,20 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast"; .0
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa6";
+import { getCookie } from "@/app/setCookie";
 import { PostType } from "@/utils/types";
+import { likePost } from "@/utils/post";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
 
 interface PostProps {
     posts: PostType[];
     currentUserId: string;
+    setPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
 }
 
-const Post = ({ posts, currentUserId }: PostProps) => {
+const Post = ({ posts, currentUserId, setPosts }: PostProps) => {
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     // Function to toggle comments visibility
     const toggleComments = (postId: string) => {
@@ -22,6 +26,31 @@ const Post = ({ posts, currentUserId }: PostProps) => {
         }));
     };
 
+    // Like
+    const handleLike = async (postId: string) => {
+        const token = await getCookie();
+        const likeRes = await likePost(token!.value, postId);
+        if (!likeRes.error) {
+            console.log("LikeRes: ", likeRes)
+            // Update the posts state to reflect the new like
+            setPosts((prevPosts) =>
+                prevPosts.map(post =>
+                    post._id === postId
+                        ? { ...post, likes: [...post.likes, currentUserId] }
+                        : post
+                )
+            );
+        } else {
+            if (likeRes.res === "Already Liked")
+                toast.error("You have already liked the post!");
+            else
+                toast.error("Error liking the post!")
+        }
+    }
+    // Comment
+    const handleComment = async () => {
+
+    }
     return (
         <div>
             {posts.length > 0 ? (
@@ -34,6 +63,7 @@ const Post = ({ posts, currentUserId }: PostProps) => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                         >
+                            {/* Post Header */}
                             <div className="flex items-center gap-3 mb-4">
                                 {post.userPic ? (
                                     <Image
@@ -86,10 +116,10 @@ const Post = ({ posts, currentUserId }: PostProps) => {
                                 </div>
                             )}
 
-                            {/* Icons for likes and comments */}
+                            {/* likes and comments */}
                             <div className="flex items-center gap-x-4 mt-4">
-                                {/* Like button with animation and hover effect */}
-                                <div className="flex items-center">
+                                {/* Like */}
+                                <div className="flex items-center" onClick={() => handleLike(post._id)}>
                                     <motion.div
                                         whileHover={{
                                             scale: 1.2,
@@ -112,8 +142,8 @@ const Post = ({ posts, currentUserId }: PostProps) => {
                                     <span className="font-semibold">{post.likes.length}</span>
                                 </div>
 
-                                {/* Comment button with animation and hover effect */}
-                                <div className="flex items-center">
+                                {/* Comment */}
+                                <div className="flex items-center" onClick={handleComment}>
                                     <motion.div
                                         whileHover={{
                                             scale: 1.2,
