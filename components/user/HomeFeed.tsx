@@ -25,7 +25,7 @@ const HomeFeed = () => {
     const [imageUrls, setImageUrls] = useState<string[]>();
     const [videoUrls, setVideoUrls] = useState<string[]>();
 
-    const { user, isCurrentUserLoading, token } = useUser();
+    const { user, isCurrentUserLoading, token, setPosts: setUserPosts } = useUser();
 
     useEffect(() => {
         getDetails()
@@ -129,6 +129,7 @@ const HomeFeed = () => {
                 updatedAt: new Date().toISOString()
             }
             setPosts(prevPosts => [newPost, ...prevPosts]);
+            setUserPosts(prevPosts => [newPost, ...prevPosts]);
             setNewPostText("");
             setSelectedImages(null);
             setSelectedVideos(null);
@@ -245,7 +246,7 @@ const HomeFeed = () => {
             </motion.div>
 
             {/* Render posts */}
-            <Post token={token} posts={posts} currentUserId={user._id} setPosts={setPosts} />
+            <Post token={token} posts={posts} currentUserId={user._id} setPosts={setPosts} isProfilePage={false} />
         </div>
     );
 };

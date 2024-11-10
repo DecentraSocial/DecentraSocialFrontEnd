@@ -8,4 +8,6 @@
 
 [ ] Add forgot username
 
-[ ] Add a loader
+[X] Add a loader
+
+[ ] Improve the follow button logic

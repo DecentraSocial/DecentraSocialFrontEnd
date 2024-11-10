@@ -1,6 +1,6 @@
 import { ClassValue, clsx } from "clsx";
-import { StringifyOptions } from "querystring";
 import { twMerge } from "tailwind-merge";
+import { Following } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,4 +41,16 @@ export const uploadMedia = async (
     console.error(error);
     throw error;
   }
+};
+
+export const checkFollowerFollowing = (
+  userId: string,
+  toCheck: string,
+  following: Following[] | null,
+  followers: Following[] | null
+) => {
+  if (toCheck === "following")
+    return following?.some((followedUser) => followedUser._id === userId);
+  if (toCheck === "follower")
+    return followers?.some((followedUser) => followedUser._id === userId);
 };

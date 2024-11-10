@@ -8,6 +8,7 @@ import toast from "react-hot-toast"; .0
 import { FaRegHeart, FaHeart, FaRegComment } from "react-icons/fa6";
 import { FaEllipsisV } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useUser } from "@/context/UserContext";
 import { PostType } from "@/utils/types";
 import { commentPost, deleteComment, deletePost, likePost } from "@/utils/post";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
@@ -16,14 +17,17 @@ interface PostProps {
     token: string;
     posts: PostType[];
     currentUserId: string;
+    isProfilePage?: boolean,
     setPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
 }
 
-const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
+const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProps) => {
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
     const [showPopover, setShowPopover] = useState<{ [key: string]: boolean }>({});
     const popoverRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+    const { setPosts: setCurrentUserPosts } = useUser()
 
     // Function to handle clicks outside the popover
     useEffect(() => {
@@ -77,6 +81,15 @@ const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
                             : post
                     )
                 );
+                if (!isProfilePage) {
+                    setCurrentUserPosts((prevPosts) =>
+                        prevPosts.map(post =>
+                            post._id === postId
+                                ? { ...post, likes: [...post.likes, currentUserId] }
+                                : post
+                        )
+                    );
+                }
             } else if (likeRes.res.message === "post has been unliked sucessfully") {
                 setPosts((prevPosts) =>
                     prevPosts.map(post =>
@@ -85,6 +98,15 @@ const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
                             : post
                     )
                 );
+                if (!isProfilePage) {
+                    setCurrentUserPosts((prevPosts) =>
+                        prevPosts.map(post =>
+                            post._id === postId
+                                ? { ...post, likes: post.likes.filter(userId => userId !== currentUserId) }
+                                : post
+                        )
+                    );
+                }
             }
         } else {
             if (likeRes.res === "Already Liked")
@@ -124,6 +146,33 @@ const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
                 )
             );
 
+            if (!isProfilePage) {
+                setCurrentUserPosts((prevPosts) =>
+                    prevPosts.map((post) =>
+                        post._id === postId
+                            ? {
+                                ...post,
+                                comments: [
+                                    ...post.comments,
+                                    {
+                                        _id: commentRes.res.comment._id,
+                                        userInfo: {
+                                            _id: currentUserId,
+                                            username: commentRes.res.comment.userInfo.username,
+                                            bio: commentRes.res.comment.userInfo.bio,
+                                            picture: commentRes.res.comment.userInfo.picture,
+                                            createdAt: commentRes.res.comment.userInfo.createdAt,
+                                            updatedAt: commentRes.res.comment.userInfo.updatedAt,
+                                        },
+                                        comment: commentRes.res.comment.comment,
+                                    },
+                                ],
+                            }
+                            : post
+                    )
+                );
+            }
+
             setCommentText((prev) => ({ ...prev, [postId]: '' }));
         } else {
             toast.error("Error commenting on the post!")
@@ -139,6 +188,8 @@ const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
         const deleteRes = await deletePost(token, postId);
         if (!deleteRes.error) {
             setPosts((prevPosts) => prevPosts.filter(post => post._id !== postId));
+            if (!isProfilePage)
+                setCurrentUserPosts((prevPosts) => prevPosts.filter(post => post._id !== postId));
             toast.success("Post deleted successfully");
         } else {
             console.log(deleteRes)
@@ -169,6 +220,18 @@ const Post = ({ token, posts, currentUserId, setPosts }: PostProps) => {
                         : post
                 )
             );
+            if (!isProfilePage) {
+                setCurrentUserPosts((prevPosts) =>
+                    prevPosts.map(post =>
+                        post._id === postId
+                            ? {
+                                ...post,
+                                comments: post.comments.filter(comment => comment._id !== commentId)
+                            }
+                            : post
+                    )
+                );
+            }
             toast.success("Comment deleted successfully");
         } else {
             toast.error("Error deleting the comment");

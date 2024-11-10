@@ -1,9 +1,10 @@
+import Explore from '@/components/user/Explore'
 import React from 'react'
 
 const page = () => {
     return (
         <div>
-            Explore
+            <Explore />
         </div>
     )
 }

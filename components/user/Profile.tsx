@@ -1,72 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { useUser } from "@/context/UserContext";
-import { Following, PostType } from "@/utils/types";
-import { getCurrentUserPosts, getFollowersDetails, getFollowingDetails } from "@/utils/user";
+import { checkFollowerFollowing } from "@/utils/utils";
+import { followUser } from "@/utils/profile";
 import Post from "./Post";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
+import UserCard from "../ui/UserCard";
+import { Following } from "@/utils/types";
 
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
-    const [followers, setFollowers] = useState<Following[]>();
-    const [following, setFollowing] = useState<Following[]>();
-    const [posts, setPosts] = useState<PostType[]>([]);
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
-    const { user, isCurrentUserLoading, token } = useUser();
-
-    useEffect(() => {
-        getUserDetails();
-    }, []);
-
-    const getUserDetails = async () => {
-        try {
-            // Follower details
-            const followersRes = await getFollowersDetails(token!)
-            if (!followersRes.error) {
-                if (followersRes.res.message === "User had 0 followers") {
-                    setFollowers([]);
-                } else {
-                    setFollowers(followersRes.res.followersArrayDetails);
-                }
-            }
-            else
-                toast.error("Error fetching followers details.")
-            // Following details
-            const followingRes = await getFollowingDetails(token!)
-            if (!followingRes.error) {
-                if (followingRes.res.message === "User had 0 following") {
-                    setFollowing([]);
-                } else {
-                    setFollowing(followingRes.res.followingArrayDetails);
-                }
-            }
-            else
-                toast.error("Error fetching following details.")
-
-            // Post details
-            const postsRes = await getCurrentUserPosts(token!)
-            if (!postsRes.error) {
-                // Sort posts by most recent first (descending order of createdAt)
-                const sortedPosts = postsRes.res.posts.sort((a: any, b: any) => {
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                });
-                setPosts(sortedPosts);
-            }
-            else
-                toast.error("Error fetching post details.")
-        } catch (error) {
-            console.log("Error getting user details: ", error);
-        }
-    }
+    const { user, setUser, isCurrentUserLoading, token, followers, following, setFollowing, posts, setPosts } = useUser();
 
     // Toggle follow/unfollow status for a user
     // const toggleFollow = (userId: string) => {
@@ -78,9 +32,51 @@ const Profile = () => {
     //     console.log("hoveringUserId: ", hoveringUserId)
     // };
 
+
+    const handleFollow = async (userToFollow: Following) => {
+        // User to follow
+        const body = {
+            Username: userToFollow?.username
+        }
+        const followUserRes = await followUser(token!, body);
+        if (!followUserRes.error) {
+            // Update followings array of current user
+            if (userToFollow) {
+                setFollowing((prevFollowing) => [
+                    ...(prevFollowing || []),
+                    {
+                        _id: userToFollow!._id,
+                        username: userToFollow!.username,
+                        bio: userToFollow!.bio,
+                        picture: user!.picture,
+                        nullifier: "",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                    }
+                ]);
+            }
+            // Update the count of followings in current user
+            setUser((prevUser) => {
+                if (prevUser) {
+                    return {
+                        ...prevUser,
+                        following: prevUser.following + 1
+                    };
+                }
+                return prevUser;
+            });
+        }
+        else
+            toast.error(`Could not follow ${user?.username}. Try again.`)
+    }
+
+    const handleUnfollow = async () => {
+
+    }
+
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <Post token={token!} posts={posts!} currentUserId={user!._id} setPosts={setPosts} />
+        <Post token={token!} posts={posts!} currentUserId={user!._id} setPosts={setPosts} isProfilePage={true} />
     );
 
     const renderFollowersFollowing = () => {
@@ -98,50 +94,14 @@ const Profile = () => {
                 {data!.length > 0 ? (
                     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {data?.map((user, index) => (
-                            <motion.div
+                            <UserCard
                                 key={user._id}
-                                className="flex flex-wrap items-center justify-between gap-2 bg-neutral-800 p-3 rounded-lg text-white"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1, duration: 0.3 }}
-                            >
-                                <div className="flex items-center gap-3">
-                                    {user.picture ? (
-                                        <Image
-                                            width={50}
-                                            height={50}
-                                            src={user.picture}
-                                            alt={user.username}
-                                            className="w-12 h-12 rounded-full border border-neutral-700"
-                                        />
-                                    ) : (
-                                        <AlphabetAvatar name={user.username} />
-                                    )}
-                                    <p className="font-normal md:font-semibold text-sm md:text-base">{user.username}</p>
-                                </div>
-
-                                {/* Follow/Unfollow button - only show on Following tab */}
-                                {/* {activeTab === "following" && (
-                                    <motion.button
-                                        onMouseEnter={() => setHoveringUserId(user._id)}
-                                        onMouseLeave={() => setHoveringUserId(null)}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            // backgroundColor: followStatus[user._id] ? "#f87171" : "#60a5fa",
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        // onClick={() => toggleFollow(user._id)}
-                                        className="px-2 md:px-4 py-1 rounded-full text-sm md:text-base md:font-semibold bg-blue-500 text-white"
-                                    >
-                                        {followStatus[user._id]
-                                            ? hoveringUserId === user._id
-                                                ? "Unfollow"
-                                                : "Following"
-                                            : "Follow"}
-                                    </motion.button>
-                                )} */}
-                            </motion.div>
+                                user={user}
+                                isFollowing={checkFollowerFollowing(user._id, "following", followers, following)!} // if the current user follows the filteredUser
+                                isFollowedBy={checkFollowerFollowing(user._id, "follower", followers, following)!} // if the filteredUser follows the current user
+                                onFollow={() => handleFollow(user)}
+                                onUnfollow={(userId) => handleUnfollow()}
+                            />
                         ))}
                     </div>
                 ) : (
@@ -160,7 +120,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="ml-10 md:ml-20 p-2 md:p-10 rounded-2xl border border-neutral-700 bg-neutral-900 flex flex-col gap-6 flex-1 w-[90%] md:w-[93%] h-full">
+        <div className="ml-10 md:ml-20 p-8 md:p-10 rounded-2xl border border-neutral-700 bg-neutral-900 flex flex-col gap-6 flex-1 w-[90%] md:w-[93%] h-full">
             {/* Profile Header */}
             <motion.div
                 className="flex items-center gap-6"

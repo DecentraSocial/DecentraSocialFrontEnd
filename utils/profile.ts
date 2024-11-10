@@ -28,7 +28,7 @@ export const getAllUsers = async () => {
     console.log("allUsersRes: ", allUsersRes.data);
     return { res: allUsersRes.data, error: false };
   } catch (error) {
-    console.log("error getting while fetching all the  users ", error);
+    console.log("Error fetching all users: ", error);
     return { res: error, error: true };
   }
 };

@@ -20,7 +20,7 @@ export type PostType = {
   post: string;
   images: string[];
   videos: string[];
-  likes: string[]; // Array of user IDs who liked the post
+  likes: string[];
   comments: CommentType[];
   createdAt: string;
   updatedAt: string;

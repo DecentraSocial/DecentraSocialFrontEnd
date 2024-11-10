@@ -40,11 +40,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             href: "/profile",
             icon: <LuUser2 className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
-        {
-            label: "Settings",
-            href: "/settings",
-            icon: <IoMdSettings className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
-        },
+        // {
+        //     label: "Settings",
+        //     href: "/settings",
+        //     icon: <IoMdSettings className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        // },
     ];
 
     if (!user)

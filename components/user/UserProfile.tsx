@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from 'next/navigation'
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { useUser } from "@/context/UserContext";
 import { Following, PostType, ProfileType } from "@/utils/types";
+import { checkFollowerFollowing } from "@/utils/utils";
 import { getFollowersDetailsByUserId, getFollowingDetailsByUserId, getUser, getUserPosts } from "@/utils/user";
+import { followUser } from "@/utils/profile";
 import Post from "./Post";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
 import ExpandingButton from "../ui/ExpandingButton";
-import { followUser } from "@/utils/profile";
+import UserCard from "../ui/UserCard";
 
 type UserParamsType = {
     userId: string;
@@ -22,14 +24,15 @@ const UserProfile = () => {
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
     const [user, setUser] = useState<ProfileType>();
-    const [followers, setFollowers] = useState<Following[]>();
-    const [following, setFollowing] = useState<Following[]>();
+
     const [posts, setPosts] = useState<PostType[]>([]);
     const [isFollowing, setIsFollowing] = useState<boolean>()
+    const [userFollowers, setUserFollowers] = useState<Following[] | null>(null);
+    const [userFollowing, setUserFollowing] = useState<Following[] | null>(null);
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
-    const { user: currentUser, isCurrentUserLoading, token } = useUser();
+    const { user: currentUser, setUser: setCurrentUser, isCurrentUserLoading, token, setFollowing } = useUser();
 
     const params = useParams<UserParamsType>()
 
@@ -50,10 +53,10 @@ const UserProfile = () => {
             const followersRes = await getFollowersDetailsByUserId(token!, userId)
             if (!followersRes.error) {
                 if (followersRes.res.message === "User had 0 followers") {
-                    setFollowers([]);
+                    setUserFollowers([]);
                 } else {
                     const followersArray = followersRes.res.followersArrayDetails;
-                    setFollowers(followersArray);
+                    setUserFollowers(followersArray);
                     // Check if current user follows this user
                     const isFollowingUser = followersArray.some((follower: { _id: string }) => follower._id === currentUser!._id);
                     isFollowingUser ? setIsFollowing(true) : setIsFollowing(false)
@@ -65,9 +68,9 @@ const UserProfile = () => {
             const followingRes = await getFollowingDetailsByUserId(token!, userId)
             if (!followingRes.error) {
                 if (followingRes.res.message === "User had 0 following") {
-                    setFollowing([]);
+                    setUserFollowing([]);
                 } else {
-                    setFollowing(followingRes.res.followingArrayDetails);
+                    setUserFollowing(followingRes.res.followingArrayDetails);
                 }
             }
             else
@@ -89,17 +92,17 @@ const UserProfile = () => {
         }
     }
 
-    const handleFollow = async () => {
-        // Current user
+    const handleFollow = async (userToFollow: ProfileType | Following, isCardUser: boolean) => {
+        // User to follow
         const body = {
-            Username: user?.username
+            Username: userToFollow.username
         }
         const followUserRes = await followUser(token!, body);
         if (!followUserRes.error) {
             setIsFollowing(true);
-            // Update followers array
-            if (currentUser) {
-                setFollowers((prevFollowers) => [
+            // Update followers array of other user
+            if (currentUser && !isCardUser) {
+                setUserFollowers((prevFollowers) => [
                     ...(prevFollowers || []),
                     {
                         _id: currentUser._id,
@@ -109,16 +112,43 @@ const UserProfile = () => {
                         nullifier: "",
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString(),
-                        __v: 0,
                     }
                 ]);
             }
-            // Update the count of followers in user
-            setUser((prevUser) => {
+            // Update followings array of current user
+            if (userToFollow) {
+                setFollowing((prevFollowing) => [
+                    ...(prevFollowing || []),
+                    {
+                        _id: userToFollow!._id,
+                        username: userToFollow!.username,
+                        bio: userToFollow!.bio,
+                        picture: userToFollow!.picture,
+                        nullifier: "",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                    }
+                ]);
+            }
+            // Update the count of followers in other user
+            if (!isCardUser) {
+                setUser((prevUser) => {
+                    if (prevUser) {
+                        return {
+                            ...prevUser,
+                            followers: prevUser.followers + 1
+                        };
+                    }
+                    return prevUser;
+                });
+            }
+
+            // Update the count of followings in current user
+            setCurrentUser((prevUser) => {
                 if (prevUser) {
                     return {
                         ...prevUser,
-                        followers: prevUser.followers + 1
+                        following: prevUser.following + 1
                     };
                 }
                 return prevUser;
@@ -144,11 +174,11 @@ const UserProfile = () => {
 
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <Post token={token!} posts={posts!} currentUserId={currentUser!._id} setPosts={setPosts} />
+        <Post token={token!} posts={posts!} currentUserId={currentUser!._id} setPosts={setPosts} isProfilePage={false} />
     );
 
     const renderFollowersFollowing = () => {
-        const data = activeTab === "followers" ? followers : following;
+        const data = activeTab === "followers" ? userFollowers : userFollowing;
         const title = activeTab === "followers" ? "Followers" : "Following";
 
         return (
@@ -162,50 +192,14 @@ const UserProfile = () => {
                 {data!.length > 0 ? (
                     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                         {data?.map((user, index) => (
-                            <motion.div
+                            <UserCard
                                 key={user._id}
-                                className="flex flex-wrap items-center justify-between gap-2 bg-neutral-800 p-3 rounded-lg text-white"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1, duration: 0.3 }}
-                            >
-                                <div className="flex items-center gap-3">
-                                    {user.picture ? (
-                                        <Image
-                                            width={50}
-                                            height={50}
-                                            src={user.picture}
-                                            alt={user.username}
-                                            className="w-12 h-12 rounded-full border border-neutral-700"
-                                        />
-                                    ) : (
-                                        <AlphabetAvatar name={user.username} />
-                                    )}
-                                    <p className="font-normal md:font-semibold text-sm md:text-base">{user.username}</p>
-                                </div>
-
-                                {/* Follow/Unfollow button - only show on Following tab */}
-                                {/* {activeTab === "following" && (
-                                    <motion.button
-                                        onMouseEnter={() => setHoveringUserId(user._id)}
-                                        onMouseLeave={() => setHoveringUserId(null)}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            // backgroundColor: followStatus[user._id] ? "#f87171" : "#60a5fa",
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        // onClick={() => toggleFollow(user._id)}
-                                        className="px-2 md:px-4 py-1 rounded-full text-sm md:text-base md:font-semibold bg-blue-500 text-white"
-                                    >
-                                        {followStatus[user._id]
-                                            ? hoveringUserId === user._id
-                                                ? "Unfollow"
-                                                : "Following"
-                                            : "Follow"}
-                                    </motion.button>
-                                )} */}
-                            </motion.div>
+                                user={user}
+                                isFollowing={checkFollowerFollowing(user._id, "following", userFollowers, userFollowing)!} // if the current user follows the filteredUser
+                                isFollowedBy={checkFollowerFollowing(user._id, "follower", userFollowers, userFollowing)!} // if the filteredUser follows the current user
+                                onFollow={() => handleFollow(user, true)}
+                                onUnfollow={(userId) => handleUnfollow()}
+                            />
                         ))}
                     </div>
                 ) : (
@@ -217,13 +211,13 @@ const UserProfile = () => {
         );
     };
 
-    if (!user || !currentUser || !followers || !following || !posts || !token || isCurrentUserLoading) {
+    if (!user || !currentUser || !userFollowers || !userFollowing || !posts || !token || isCurrentUserLoading) {
         return (
             <Loading />
         )
     }
     return (
-        <div className="ml-10 md:ml-20 p-2 md:p-10 rounded-2xl border border-neutral-700 bg-neutral-900 flex flex-col gap-6 flex-1 w-[90%] md:w-[93%] h-full">
+        <div className="ml-10 md:ml-20 p-8 md:p-10 rounded-2xl border border-neutral-700 bg-neutral-900 flex flex-col gap-6 flex-1 w-[90%] md:w-[93%] h-full">
             {/* Profile Header */}
             <motion.div
                 className="flex items-center gap-6"
@@ -255,7 +249,7 @@ const UserProfile = () => {
                         {isFollowing ? (
                             <ExpandingButton onClick={handleUnfollow} label="Following" />
                         ) : (
-                            <ExpandingButton onClick={handleFollow} label="Follow" />
+                            <ExpandingButton onClick={() => handleFollow(user, false)} label="Follow" />
                         )}
                     </motion.div>
                 </div>
