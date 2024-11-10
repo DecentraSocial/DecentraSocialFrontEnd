@@ -18,6 +18,7 @@ const AlphabetAvatar: React.FC<AlphabetAvatarProps> = ({ name, size = 50 }) => {
             style={{
                 width: size,
                 height: size,
+                aspectRatio: 1 / 1,
                 borderRadius: '50%',
                 backgroundColor: '#e0aaff', // Avatar background color
                 display: 'flex',

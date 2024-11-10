@@ -1,21 +1,45 @@
 // components/Layout.tsx
 "use client";
-import React, { use, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "../setCookie";
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
+import toast from "react-hot-toast";
 import { BiLogOut } from "react-icons/bi";
 import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
-import { IoHome } from "react-icons/io5";
+import { IoHome, IoSearch } from "react-icons/io5";
+import { deleteCookie, getCookie } from "../setCookie";
+import { getCurrentUser } from "@/utils/user";
+import { ProfileType } from "@/utils/types";
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
+import AlphabetAvatar from "@/components/ui/AlphabetAvatar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
-    const router=useRouter();
+    const [user, setUser] = useState<ProfileType>();
 
-    const deletehandler=async(e:any)=>{
+    const router = useRouter();
+
+    useEffect(() => {
+        getUserDetails();
+    }, []);
+
+    const getUserDetails = async () => {
+        try {
+            const token = await getCookie();
+            // User details
+            const userRes = await getCurrentUser(token!.value)
+            if (!userRes.error)
+                setUser(userRes.res);
+            else
+                toast.error("Error fetching user details.")
+        } catch (error) {
+            console.log("Error getting user details: ", error);
+        }
+    }
+
+    const deletehandler = async (e: any) => {
         e.preventDefault();
         deleteCookie();
         router.push("/auth/signin");
@@ -26,6 +50,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             label: "Home",
             href: "/home",
             icon: <IoHome className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        },
+        {
+            label: "Explore",
+            href: "/explore",
+            icon: <IoSearch className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Profile",
@@ -39,6 +68,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         },
     ];
 
+    if (!user)
+        return;
+
     return (
         <div className="flex min-h-screen w-full">
             {/* Sidebar */}
@@ -50,26 +82,30 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                             {links.map((link, idx) => (
                                 <SidebarLink key={idx} link={link} />
                             ))}
-                            <button className="flex items-center justify-start gap-4 group/sidebar py-2" onClick={(e)=>deletehandler(e)}> 
-                            <BiLogOut className="text-neutral-200 h-5 w-5 flex-shrink-0" /> 
-                            <span className="text-neutral-200 md:text-xl group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">Logout</span>          
+                            <button className="flex items-center justify-start gap-4 group/sidebar py-2" onClick={(e) => deletehandler(e)}>
+                                <BiLogOut className="text-neutral-200 h-5 w-5 flex-shrink-0" />
+                                <span className="text-neutral-200 md:text-xl group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">Logout</span>
                             </button>
                         </div>
-                        
+
                     </div>
                     <div>
                         <SidebarLink
                             link={{
-                                label: "John Doe",
+                                label: user?.username,
                                 href: "/profile",
                                 icon: (
-                                    <Image
-                                        src="/temp/sample_profile.jpg"
-                                        className="h-7 w-7 flex-shrink-0 rounded-full"
-                                        width={50}
-                                        height={50}
-                                        alt="Avatar"
-                                    />
+                                    user.picture ? (
+                                        <Image
+                                            src={user.picture}
+                                            className="h-7 w-7 flex-shrink-0 rounded-full"
+                                            width={50}
+                                            height={50}
+                                            alt="Avatar"
+                                        />
+                                    ) : (
+                                        <AlphabetAvatar name={user.username} size={30} />
+                                    )
                                 ),
                             }}
                         />

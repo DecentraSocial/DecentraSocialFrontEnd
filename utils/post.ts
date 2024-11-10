@@ -61,37 +61,43 @@ export const commentPost = async (
   }
 };
 
-export const deletePost=async(token:string, postId:string)=>{
-  try{
-    const deletePostRes=await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/post/deletePost/${postId}`,
+export const deletePost = async (token: string, postId: string) => {
+  try {
+    const deletePostRes = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/post/deletePost/${postId}`,
       {
-        headers:{
+        headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       }
     );
-    console.log("deletePostRes: ", deletePostRes.data)
-    return {res:deletePostRes.data, error:false}
-  }catch(error){
-    console.log("Error deleting post: ", error)
-    return {res:error, error:true}
+    console.log("deletePostRes: ", deletePostRes.data);
+    return { res: deletePostRes.data, error: false };
+  } catch (error) {
+    console.log("Error deleting post: ", error);
+    return { res: error, error: true };
   }
-}
+};
 
-export const deletingComment=async(token:string, postId:string,commentId:string)=>{
-  try{
-    const deleteCommentRes=await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/post/${postId}/deleteComment/${commentId}`,
+export const deleteComment = async (
+  token: string,
+  postId: string,
+  commentId: string
+) => {
+  try {
+    const deleteCommentRes = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/post/${postId}/deleteComment/${commentId}`,
       {
-        headers:{
+        headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       }
     );
-    
-    console.log("deleteCommentRes: ", deleteCommentRes.data)
-    return {res:deleteCommentRes.data, error:false}
-  }catch(error){
-    console.log("Error deleting comment: ", error)
-    return {res:error, error:true}
+
+    console.log("deleteCommentRes: ", deleteCommentRes.data);
+    return { res: deleteCommentRes.data, error: false };
+  } catch (error) {
+    console.log("Error deleting comment: ", error);
+    return { res: error, error: true };
   }
-}
+};

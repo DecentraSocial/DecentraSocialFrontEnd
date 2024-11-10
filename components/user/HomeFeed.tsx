@@ -141,6 +141,7 @@ const HomeFeed = () => {
             setNewPostText("");
             setSelectedImages(null);
             setSelectedVideos(null);
+            toast.success("Post has been created successfully!")
         } else {
             toast.error("Error creating the post. Try again.");
             return
@@ -253,7 +254,7 @@ const HomeFeed = () => {
             </motion.div>
 
             {/* Render posts */}
-            <Post posts={posts} currentUserId={user._id} setPosts={setPosts} />
+            <Post token={token} posts={posts} currentUserId={user._id} setPosts={setPosts} />
         </div>
     );
 };
