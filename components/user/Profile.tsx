@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Following, PostType, ProfileType } from "@/utils/types";
-import { getCookie } from "@/app/setCookie";
-import { getCurrentUser, getCurrentUserPosts, getFollowersDetails, getFollowingDetails } from "@/utils/user";
+import { useUser } from "@/context/UserContext";
+import { Following, PostType } from "@/utils/types";
+import { getCurrentUserPosts, getFollowersDetails, getFollowingDetails } from "@/utils/user";
 import Post from "./Post";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
@@ -15,14 +15,13 @@ import AlphabetAvatar from "../ui/AlphabetAvatar";
 const Profile = () => {
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
-    const [user, setUser] = useState<ProfileType>();
     const [followers, setFollowers] = useState<Following[]>();
     const [following, setFollowing] = useState<Following[]>();
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [token, setToken] = useState<string>("");
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
+    const { user, isCurrentUserLoading, token } = useUser();
 
     useEffect(() => {
         getUserDetails();
@@ -30,17 +29,8 @@ const Profile = () => {
 
     const getUserDetails = async () => {
         try {
-            const token = await getCookie();
-            console.log("Token: ", token)
-            setToken(token!.value)
-            // User details
-            const userRes = await getCurrentUser(token!.value)
-            if (!userRes.error)
-                setUser(userRes.res);
-            else
-                toast.error("Error fetching user details.")
             // Follower details
-            const followersRes = await getFollowersDetails(token!.value)
+            const followersRes = await getFollowersDetails(token!)
             if (!followersRes.error) {
                 if (followersRes.res.message === "User had 0 followers") {
                     setFollowers([]);
@@ -51,7 +41,7 @@ const Profile = () => {
             else
                 toast.error("Error fetching followers details.")
             // Following details
-            const followingRes = await getFollowingDetails(token!.value)
+            const followingRes = await getFollowingDetails(token!)
             if (!followingRes.error) {
                 if (followingRes.res.message === "User had 0 following") {
                     setFollowing([]);
@@ -63,7 +53,7 @@ const Profile = () => {
                 toast.error("Error fetching following details.")
 
             // Post details
-            const postsRes = await getCurrentUserPosts(token!.value)
+            const postsRes = await getCurrentUserPosts(token!)
             if (!postsRes.error) {
                 // Sort posts by most recent first (descending order of createdAt)
                 const sortedPosts = postsRes.res.posts.sort((a: any, b: any) => {
@@ -90,7 +80,7 @@ const Profile = () => {
 
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <Post token={token} posts={posts!} currentUserId={user!._id} setPosts={setPosts} />
+        <Post token={token!} posts={posts!} currentUserId={user!._id} setPosts={setPosts} />
     );
 
     const renderFollowersFollowing = () => {
@@ -163,7 +153,7 @@ const Profile = () => {
         );
     };
 
-    if (!user || !followers || !following || !posts || !token) {
+    if (!user || isCurrentUserLoading || !followers || !following || !posts || !token) {
         return (
             <Loading />
         )

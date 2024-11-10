@@ -1,43 +1,22 @@
-// components/Layout.tsx
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import { BiLogOut } from "react-icons/bi";
 import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { IoHome, IoSearch } from "react-icons/io5";
-import { deleteCookie, getCookie } from "../setCookie";
-import { getCurrentUser } from "@/utils/user";
-import { ProfileType } from "@/utils/types";
+import { useUser } from "@/context/UserContext";
+import { deleteCookie } from "../setCookie";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import AlphabetAvatar from "@/components/ui/AlphabetAvatar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
-    const [user, setUser] = useState<ProfileType>();
+    const { user } = useUser();
 
     const router = useRouter();
-
-    useEffect(() => {
-        getUserDetails();
-    }, []);
-
-    const getUserDetails = async () => {
-        try {
-            const token = await getCookie();
-            // User details
-            const userRes = await getCurrentUser(token!.value)
-            if (!userRes.error)
-                setUser(userRes.res);
-            else
-                toast.error("Error fetching user details.")
-        } catch (error) {
-            console.log("Error getting user details: ", error);
-        }
-    }
 
     const deletehandler = async (e: any) => {
         e.preventDefault();
