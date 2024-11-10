@@ -5,9 +5,9 @@ import Image from "next/image";
 import { useParams } from 'next/navigation'
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { useUser } from "@/context/UserContext";
 import { Following, PostType, ProfileType } from "@/utils/types";
-import { getCookie } from "@/app/setCookie";
-import { getCurrentUser, getFollowersDetailsByUserId, getFollowingDetailsByUserId, getUser, getUserPosts } from "@/utils/user";
+import { getFollowersDetailsByUserId, getFollowingDetailsByUserId, getUser, getUserPosts } from "@/utils/user";
 import Post from "./Post";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
@@ -22,15 +22,14 @@ const UserProfile = () => {
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
     const [user, setUser] = useState<ProfileType>();
-    const [currentUser, setCurrentUser] = useState<ProfileType>();
     const [followers, setFollowers] = useState<Following[]>();
     const [following, setFollowing] = useState<Following[]>();
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [token, setToken] = useState<string>("");
     const [isFollowing, setIsFollowing] = useState<boolean>()
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
+    const { user: currentUser, isCurrentUserLoading, token } = useUser();
 
     const params = useParams<UserParamsType>()
 
@@ -40,24 +39,15 @@ const UserProfile = () => {
 
     const getUserDetails = async () => {
         try {
-            const token = await getCookie();
-            console.log("Token: ", token)
-            setToken(token!.value)
             const userId = params.userId;
-            // Current user
-            const currentUserRes = await getCurrentUser(token!.value)
-            if (!currentUserRes.error)
-                setCurrentUser(currentUserRes.res);
-            else
-                toast.error("Error fetching current user details.")
             // User details
-            const userRes = await getUser(token!.value, userId)
+            const userRes = await getUser(token!, userId)
             if (!userRes.error)
                 setUser(userRes.res);
             else
                 toast.error("Error fetching user details.")
             // Follower details
-            const followersRes = await getFollowersDetailsByUserId(token!.value, userId)
+            const followersRes = await getFollowersDetailsByUserId(token!, userId)
             if (!followersRes.error) {
                 if (followersRes.res.message === "User had 0 followers") {
                     setFollowers([]);
@@ -65,14 +55,14 @@ const UserProfile = () => {
                     const followersArray = followersRes.res.followersArrayDetails;
                     setFollowers(followersArray);
                     // Check if current user follows this user
-                    const isFollowingUser = followersArray.some((follower: { _id: string }) => follower._id === currentUserRes.res._id);
+                    const isFollowingUser = followersArray.some((follower: { _id: string }) => follower._id === currentUser!._id);
                     isFollowingUser ? setIsFollowing(true) : setIsFollowing(false)
                 }
             }
             else
                 toast.error("Error fetching followers details.")
             // Following details
-            const followingRes = await getFollowingDetailsByUserId(token!.value, userId)
+            const followingRes = await getFollowingDetailsByUserId(token!, userId)
             if (!followingRes.error) {
                 if (followingRes.res.message === "User had 0 following") {
                     setFollowing([]);
@@ -84,7 +74,7 @@ const UserProfile = () => {
                 toast.error("Error fetching following details.")
 
             // Post details
-            const postsRes = await getUserPosts(token!.value, userId)
+            const postsRes = await getUserPosts(token!, userId)
             if (!postsRes.error) {
                 // Sort posts by most recent first (descending order of createdAt)
                 const sortedPosts = postsRes.res.posts.sort((a: any, b: any) => {
@@ -104,7 +94,7 @@ const UserProfile = () => {
         const body = {
             Username: user?.username
         }
-        const followUserRes = await followUser(token, body);
+        const followUserRes = await followUser(token!, body);
         if (!followUserRes.error) {
             setIsFollowing(true);
             // Update followers array
@@ -154,7 +144,7 @@ const UserProfile = () => {
 
     // Render post content with media, likes, and comments
     const renderPostContent = () => (
-        <Post token={token} posts={posts!} currentUserId={currentUser!._id} setPosts={setPosts} />
+        <Post token={token!} posts={posts!} currentUserId={currentUser!._id} setPosts={setPosts} />
     );
 
     const renderFollowersFollowing = () => {
@@ -227,7 +217,7 @@ const UserProfile = () => {
         );
     };
 
-    if (!user || !currentUser || !followers || !following || !posts || !token) {
+    if (!user || !currentUser || !followers || !following || !posts || !token || isCurrentUserLoading) {
         return (
             <Loading />
         )

@@ -1,26 +1,23 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { FaRegImage, FaVideo, FaFaceSmile } from "react-icons/fa6";
-import { getCurrentUser } from "@/utils/user";
+import { IoMdClose } from "react-icons/io";
+import { useUser } from "@/context/UserContext";
 import { getAllPosts } from "@/utils/home";
 import { createPost } from "@/utils/post";
-import { getCookie } from "@/app/setCookie";
-import { PostType, ProfileType } from "@/utils/types";
+import { PostType } from "@/utils/types";
 import { uploadMedia } from "@/utils/utils";
-import { IoMdClose } from "react-icons/io";
 import Post from "./Post";
 import GlowButton from "../ui/GlowButton";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
 
 const HomeFeed = () => {
-    const [token, setToken] = useState<string>();
     const [posts, setPosts] = useState<PostType[]>([]);
-    const [user, setUser] = useState<ProfileType>();
     const [newPostText, setNewPostText] = useState<string>("");
     const [selectedImages, setSelectedImages] = useState<File[] | null>(null);
     const [selectedVideos, setSelectedVideos] = useState<File[] | null>(null);
@@ -28,19 +25,13 @@ const HomeFeed = () => {
     const [imageUrls, setImageUrls] = useState<string[]>();
     const [videoUrls, setVideoUrls] = useState<string[]>();
 
+    const { user, isCurrentUserLoading, token } = useUser();
+
     useEffect(() => {
         getDetails()
     }, [])
     const getDetails = async () => {
         try {
-            const authToken = await getCookie();
-            setToken(authToken?.value)
-            // User details
-            const userRes = await getCurrentUser(authToken!.value)
-            if (!userRes.error)
-                setUser(userRes.res);
-            else
-                toast.error("Error fetching user details.")
             // All posts
             const postsRes = await getAllPosts();
             if (!postsRes.error) {
@@ -148,7 +139,7 @@ const HomeFeed = () => {
         }
     };
 
-    if (!token || !user || !posts) {
+    if (!token || !user || !posts || isCurrentUserLoading) {
         return (
             <Loading />
         )
