@@ -21,7 +21,7 @@ import { Input } from '../ui/Input';
 
 const proof = {
     "type": "anon-aadhaar",
-    "id": "92b57988-c92f-41b5-8541-776a5f196f0a",
+    "id": "4641757f-2fab-42ff-a2a7-2f5263994fcf",
     "claim": {
         "pubKey": [
             "1388327314901276273497603053049831573",
@@ -51,18 +51,18 @@ const proof = {
     "proof": {
         "groth16Proof": {
             "pi_a": [
-                "18899954804066570070478420876020428113331419319671430218000858994938855222008",
-                "6691801593129256311271407480792799086776645787549257067668850353846937522807",
+                "17023436018389750684842225796297938368521558524082702430843931795138968260486",
+                "576682879927079311932314671079675697037889285975771123131147683703874696322",
                 "1"
             ],
             "pi_b": [
                 [
-                    "7012436179191440130237870514785549126325409958184052180208595171379718643540",
-                    "13387654599470660922212914382661881147332967801978400485295004827703101681479"
+                    "18583402993918600281392787193754429870759226463607870083891465596102496996610",
+                    "1500577246161474790075119548564008396533359745943147509296525973577672206249"
                 ],
                 [
-                    "16368123913144782992335437975704437679422136033620812718832071328188107380701",
-                    "16511818283089870217239008373282613683054168098454399665382402076150305030107"
+                    "3266020571959719706108185575613112197903527439467316952132248878755819002143",
+                    "20288630843728554250011497208541312242314701792996834310653133997448537361154"
                 ],
                 [
                     "1",
@@ -70,8 +70,8 @@ const proof = {
                 ]
             ],
             "pi_c": [
-                "6163498801149870012904019137641691540976106858671196216095763271901415421602",
-                "3271972489240148897366887228294541781233141046385806493305415607275260267912",
+                "6722745786860999539492763034046715871989778852764675899991947464144554383812",
+                "17334040801595912446171041105960280760243900441722471531486591776133879881615",
                 "1"
             ],
             "protocol": "groth16",
@@ -79,8 +79,8 @@ const proof = {
         },
         "pubkeyHash": "18063425702624337643644061197836918910810808173893535653269228433734128853484",
         "timestamp": "1730723400",
-        "nullifierSeed": "108274800",
-        "nullifier": "1550100262067717086011651207042883666239885390709865158044783080948713742007",
+        "nullifierSeed": "845668269",
+        "nullifier": "16008919579212135682596123305902128095076125043595730010915474025995067092668",
         "signalHash": "10010552857485068401460384516712912466659718519570795790728634837432493097374",
         "ageAbove18": "1",
         "gender": "0",
@@ -126,13 +126,13 @@ const Signup = () => {
             toast.error("Enter your username");
         console.log("latestProof: ", latestProof)
         try {
-            if (latestProof) {
+            if (latestProof !== undefined) {
                 const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
                     username,
                     bio,
                     picture: picture ? picUrl : "",
                     // latestProof,
-                    latestProof: latestProof !== undefined ? latestProof : proof,
+                    latestProof: latestProof
                 });
                 console.log(res)
                 // Save user session information if logged in successfully
@@ -142,8 +142,21 @@ const Signup = () => {
                     router.push("/home");
                 }
             } else {
-                toast.error("Proof could not be generated. Try again.")
-                return;
+                // toast.error("Proof could not be generated. Try again.")
+                // return;
+                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                    username,
+                    bio,
+                    picture: picture ? picUrl : "",
+                    latestProof: proof,
+                });
+                console.log(res)
+                // Save user session information if logged in successfully
+                if (res.data.isLoggedIn) {
+                    setAuthCookie(res.data.token)
+                    toast.success("Signed up successfully!");
+                    router.push("/home");
+                }
             }
         } catch (error: any) {
             console.log("Error signing up: ", error)

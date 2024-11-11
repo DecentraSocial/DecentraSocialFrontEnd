@@ -160,7 +160,7 @@ const HomeFeed = () => {
                     <Image
                         width={50}
                         height={50}
-                        src="/temp/sample_profile.jpg"
+                        src={user.picture}
                         alt="User"
                         className="w-12 h-12 rounded-full border border-neutral-700"
                     />

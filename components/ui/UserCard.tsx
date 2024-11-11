@@ -84,7 +84,9 @@ const UserCard: React.FC<UserCardProps> = ({ user, isFollowing, isFollowedBy, on
                 )}
                 <p className="font-semibold">{user.username}</p>
             </Link>
-            <div className="mt-3 sm:mt-0">{renderFollowButton()}</div>
+            {/* {user._id !== currentUser?._id && (
+                <div className="mt-3 sm:mt-0">{renderFollowButton()}</div>
+            )} */}
         </motion.div>
     );
 };

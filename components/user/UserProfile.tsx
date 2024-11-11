@@ -241,7 +241,8 @@ const UserProfile = () => {
                         <h2 className="text-2xl font-bold">{user.username}</h2>
                         <p className="text-neutral-400">{user.bio}</p>
                     </div>
-                    <motion.div
+                    {/* Follow button */}
+                    {/* <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
@@ -251,7 +252,7 @@ const UserProfile = () => {
                         ) : (
                             <ExpandingButton onClick={() => handleFollow(user, false)} label="Follow" />
                         )}
-                    </motion.div>
+                    </motion.div> */}
                 </div>
             </motion.div>
 
