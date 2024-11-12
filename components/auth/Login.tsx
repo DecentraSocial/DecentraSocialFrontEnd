@@ -102,53 +102,53 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const router = useRouter();
 
     useEffect(() => {
-        if (anonAadhaar.status === "logged-in") {
+        if (anonAadhaar.status === "logged-in" && latestProof) {
             console.log(anonAadhaar.status);
             // call the login api
             login();
         }
-    }, [anonAadhaar]);
+    }, [anonAadhaar, latestProof]);
+    
     const login = async () => {
-        if (!username)
+        if (!username) {
             toast.error("Enter your username");
+            return;
+        }
+        
+        if (!latestProof) {
+            console.log("No proof available yet.");
+            return;
+        }
+    
         try {
-            let body;
-            if (latestProof !== undefined) {
-                body = {
-                    username,
-                    latestProof: latestProof
-                }
-            } else {
-                body = {
-                    username,
-                    latestProof: proof
-                }
-            }
-            console.log("latest proof: ", latestProof)
-            console.log(body)
+            let body = {
+                proof: latestProof,
+                username,
+                // Add other necessary fields here
+            };
+    
+            console.log("latest proof: ", latestProof);
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
             console.log("Login res: ", res);
-
+    
             // Save user session information if logged in successfully
             if (res.data.isLoggedIn) {
-                // Save the token in cookies
-                setAuthCookie(res.data.token)
+                setAuthCookie(res.data.token);
                 toast.success("Logged in successfully!");
-                // Redirect to the home page
                 router.push('/home');
             } else {
                 toast.error('Login failed. Invalid credentials.');
             }
         } catch (error: any) {
             console.log("Error signing in: ", error);
-            if (error.response.data.message === "Anon Aadhaar Proof Invalid")
-                toast.error("Could not validate your aadhar. Please try again.");
-            else if (error.response.data.message === "User does not exist")
+            if (error.response?.data?.message === "Anon Aadhaar Proof Invalid")
+                toast.error("Could not validate your Aadhaar. Please try again.");
+            else if (error.response?.data?.message === "User does not exist")
                 toast.error("User does not exist");
             else
                 toast.error("Login failed. Please try again.");
         }
-    }
+    };
 
     const switchAadhaar = () => {
         setUseTestAadhaar(!useTestAadhaar);
