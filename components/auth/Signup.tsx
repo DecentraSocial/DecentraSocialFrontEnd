@@ -114,49 +114,38 @@ const Signup = () => {
 
     useEffect(() => {
         console.log("anonAadhaar: ", anonAadhaar)
-        if (anonAadhaar.status === "logged-in") {
+        if (anonAadhaar.status === "logged-in" && latestProof) {
             console.log(anonAadhaar.status);
             // call the register api
             signup();
         }
-    }, [anonAadhaar]);
+    }, [anonAadhaar, latestProof]);
 
     const signup = async () => {
         if (!username)
             toast.error("Enter your username");
-        console.log("latestProof: ", latestProof)
+        if (!latestProof) {
+            toast.error("Proof not available yet.");
+            console.log("No proof available yet.");
+            return;
+        }
         try {
-            if (latestProof !== undefined) {
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                    username,
-                    bio,
-                    picture: picture ? picUrl : "",
-                    // latestProof,
-                    latestProof: latestProof
-                });
-                console.log(res)
-                // Save user session information if logged in successfully
-                if (res.data.isLoggedIn) {
-                    setAuthCookie(res.data.token)
-                    toast.success("Signed up successfully!");
-                    router.push("/home");
-                }
+            console.log("latestProof: ", latestProof)
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
+                username,
+                bio,
+                picture: picture ? picUrl : "",
+                // latestProof,
+                latestProof: latestProof
+            });
+            console.log("Signup res:", res)
+            // Save user session information if logged in successfully
+            if (res.data.isLoggedIn) {
+                setAuthCookie(res.data.token)
+                toast.success("Signed up successfully!");
+                router.replace("/home");
             } else {
-                // toast.error("Proof could not be generated. Try again.")
-                // return;
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                    username,
-                    bio,
-                    picture: picture ? picUrl : "",
-                    latestProof: proof,
-                });
-                console.log(res)
-                // Save user session information if logged in successfully
-                if (res.data.isLoggedIn) {
-                    setAuthCookie(res.data.token)
-                    toast.success("Signed up successfully!");
-                    router.push("/home");
-                }
+                toast.error('Signup failed. Invalid credentials.');
             }
         } catch (error: any) {
             console.log("Error signing up: ", error)
@@ -167,32 +156,6 @@ const Signup = () => {
             }
         }
     }
-
-    const handleSubmit = async () => {
-        if (!username) {
-            toast.error("Please enter a username");
-            return;
-        }
-        try {
-            if (picture) {
-                const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/register`, {
-                    username,
-                    bio,
-                    picture: picUrl
-                });
-                console.log(res)
-                if (res)
-                    router.push("/auth/signin")
-            }
-        } catch (error: any) {
-            console.log("Error signing up: ", error)
-            if (error.response.data.message === "User already exists") {
-                toast.error("User already exists")
-            } else {
-                toast.error("Error signing up! Please try again.")
-            }
-        }
-    };
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
             <StarsCanvas className="absolute inset-0 z-0" />

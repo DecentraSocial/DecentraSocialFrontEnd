@@ -23,76 +23,6 @@ type LoginProps = {
     useTestAadhaar: boolean;
 };
 
-const proof = {
-    "type": "anon-aadhaar",
-    "id": "4641757f-2fab-42ff-a2a7-2f5263994fcf",
-    "claim": {
-        "pubKey": [
-            "1388327314901276273497603053049831573",
-            "1288770065561824590310204825945893597",
-            "347944061738351220497875430520412587",
-            "2203925894492670478365294907843212566",
-            "349976987200639440095663304686403400",
-            "1858127966046453767090107272117170604",
-            "98944980972575232708304306395068367",
-            "72308052871443505790154443070931847",
-            "171399417356978051390838864702414084",
-            "2253675451749563963224572465143971881",
-            "442208872747909568780648632811615762",
-            "683454141347236191691262238349526517",
-            "1671407496108483722945952438837825234",
-            "1087766175397090383868214821691649424",
-            "13091038325609962763769551933681621",
-            "2021829298345573369225939328286843929",
-            "3294796001033061829975954746704750"
-        ],
-        "signalHash": "10010552857485068401460384516712912466659718519570795790728634837432493097374",
-        "ageAbove18": true,
-        "gender": null,
-        "pincode": null,
-        "state": null
-    },
-    "proof": {
-        "groth16Proof": {
-            "pi_a": [
-                "17023436018389750684842225796297938368521558524082702430843931795138968260486",
-                "576682879927079311932314671079675697037889285975771123131147683703874696322",
-                "1"
-            ],
-            "pi_b": [
-                [
-                    "18583402993918600281392787193754429870759226463607870083891465596102496996610",
-                    "1500577246161474790075119548564008396533359745943147509296525973577672206249"
-                ],
-                [
-                    "3266020571959719706108185575613112197903527439467316952132248878755819002143",
-                    "20288630843728554250011497208541312242314701792996834310653133997448537361154"
-                ],
-                [
-                    "1",
-                    "0"
-                ]
-            ],
-            "pi_c": [
-                "6722745786860999539492763034046715871989778852764675899991947464144554383812",
-                "17334040801595912446171041105960280760243900441722471531486591776133879881615",
-                "1"
-            ],
-            "protocol": "groth16",
-            "curve": "bn128"
-        },
-        "pubkeyHash": "18063425702624337643644061197836918910810808173893535653269228433734128853484",
-        "timestamp": "1730723400",
-        "nullifierSeed": "845668269",
-        "nullifier": "16008919579212135682596123305902128095076125043595730010915474025995067092668",
-        "signalHash": "10010552857485068401460384516712912466659718519570795790728634837432493097374",
-        "ageAbove18": "1",
-        "gender": "0",
-        "pincode": "0",
-        "state": "0"
-    }
-}
-
 // fix the logic to check the existence of username before calling the api
 const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
     const [anonAadhaar] = useAnonAadhaar();
@@ -108,34 +38,34 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
             login();
         }
     }, [anonAadhaar, latestProof]);
-    
+
     const login = async () => {
         if (!username) {
             toast.error("Enter your username");
             return;
         }
-        
+
         if (!latestProof) {
+            toast.error("Proof not available yet.");
             console.log("No proof available yet.");
             return;
         }
-    
+
         try {
             let body = {
-                proof: latestProof,
+                latestProof,
                 username,
-                // Add other necessary fields here
             };
-    
+
             console.log("latest proof: ", latestProof);
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, body);
             console.log("Login res: ", res);
-    
+
             // Save user session information if logged in successfully
             if (res.data.isLoggedIn) {
                 setAuthCookie(res.data.token);
                 toast.success("Logged in successfully!");
-                router.push('/home');
+                router.replace('/home');
             } else {
                 toast.error('Login failed. Invalid credentials.');
             }
