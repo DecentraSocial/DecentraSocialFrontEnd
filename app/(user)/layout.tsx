@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { BiLogOut } from "react-icons/bi";
 import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
+import { AiOutlineMessage } from "react-icons/ai";
 import { IoHome, IoSearch } from "react-icons/io5";
 import { useUser } from "@/context/UserContext";
 import { deleteCookie } from "../setCookie";
@@ -29,6 +30,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             label: "Home",
             href: "/home",
             icon: <IoHome className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        },
+        {
+            label: "Messages",
+            href: "/messages",
+            icon: <AiOutlineMessage className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Explore",
