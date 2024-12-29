@@ -44,3 +44,27 @@ export type Following = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ChatUserType = {
+  userId: string;
+  username: string;
+  picture: string;
+};
+
+export type MessageType = {
+  messageId: string;
+  sender: ChatUserType;
+  content: string;
+  chatId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ChatType = {
+  chatId: string;
+  chatName: string;
+  users: ChatUserType[];
+  latestMessage: MessageType;
+  createdAt: string;
+  updatedAt: string;
+};
