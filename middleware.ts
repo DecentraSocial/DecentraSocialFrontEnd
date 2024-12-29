@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // List of routes accessible only when logged in
-const protectedRoutes = ["/home", "/profile", "/settings"];
+const protectedRoutes = ["/home", "/profile", "/messages", "/settings"];
 
 // List of routes accessible only when not logged in
 const authRoutes = ["/auth/signin", "/auth/signup"];

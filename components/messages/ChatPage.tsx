@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { fetchChats } from "@/utils/chat";
 import ChatSidebar from "./ChatSidebar";
@@ -15,73 +15,13 @@ const ChatPage = () => {
     ]);
     const [selectedChat, setSelectedChat] = useState<ChatType>();
     const [otherUser, setOtherUser] = useState<ChatUserType>();
-    const [messages, setMessages] = useState<MessageType[]>([
-        {
-            messageId: "msg1",
-            sender: {
-                userId: "user1",
-                username: "Alice",
-                picture: "alice.jpg",
-            },
-            content: "Hi, how are you?",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:00:00Z",
-            updatedAt: "2024-12-28T10:00:00Z",
-        },
-        {
-            messageId: "msg2",
-            sender: {
-                userId: "user2",
-                username: "Bob",
-                picture: "bob.jpg",
-            },
-            content: "I'm doing great, thanks! What about you?",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:02:00Z",
-            updatedAt: "2024-12-28T10:02:00Z",
-        },
-        {
-            messageId: "msg3",
-            sender: {
-                userId: "user1",
-                username: "Alice",
-                picture: "alice.jpg",
-            },
-            content: "I'm good too, just catching up with work.",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:05:00Z",
-            updatedAt: "2024-12-28T10:05:00Z",
-        },
-        {
-            messageId: "msg4",
-            sender: {
-                userId: "user3",
-                username: "Charlie",
-                picture: "charlie.jpg",
-            },
-            content: "Hey everyone, what's up?",
-            chatId: "chat2",
-            createdAt: "2024-12-28T10:10:00Z",
-            updatedAt: "2024-12-28T10:10:00Z",
-        },
-        {
-            messageId: "msg5",
-            sender: {
-                userId: "user2",
-                username: "Bob",
-                picture: "bob.jpg",
-            },
-            content: "Not much, Charlie. How about you?",
-            chatId: "chat2",
-            createdAt: "2024-12-28T10:12:00Z",
-            updatedAt: "2024-12-28T10:12:00Z",
-        },
-    ]);
+    const [messages, setMessages] = useState<MessageType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const {socket}=useUser();
 
     useEffect(() => {
         getAllChats();
-    }, []);
+    }, [messages]);
 
     const getAllChats = async () => {
         if (token) {
@@ -93,12 +33,30 @@ const ChatPage = () => {
     useEffect(() => {
         if (selectedChat?.users) {
             const secondUser = selectedChat.users.find(
-                (user) => user.userId !== currentUser?._id
-            );
+                (user) => { return user.userId !== currentUser?._id
+        });
+            console.log("currentUser: ", currentUser);
             console.log("secondUser: ", secondUser);
             setOtherUser(secondUser); // Set the single user
+
+            // console.log("selected chat",selectedChat)
         }
+
+        console.log("selected chat",selectedChat)
+        getAllMessages(selectedChat?._id || "67700174cd16f63f4e85e8ee");
+
+        // from the selected chat we have to first fetch all the message of that chat by passing a chatId
     }, [selectedChat]);
+
+    const getAllMessages=(id:String)=>{
+        console.log("i am inside getAllMessages",id);
+        socket?.emit("join chat",{chatId:id});
+
+        socket?.on("chat history",(data)=>{
+            console.log("data received from decentria chat: ",data);
+            setMessages(data);
+        })
+    }
 
     const { user: currentUser, followers, token } = useUser();
 
@@ -123,8 +81,8 @@ const ChatPage = () => {
         // setIsModalOpen(false);
     };
 
-    if (selectedChat && !otherUser)
-        return <Loading />
+    // if (selectedChat && !otherUser)
+    //     return <Loading />
 
     return (
         <div className="ml-10 md:ml-20 bg-neutral-900 flex w-[90%] md:w-[93%] h-full">
@@ -145,6 +103,7 @@ const ChatPage = () => {
                         <MessageBox
                             messages={messages}
                             setMessages={setMessages}
+                            selectedChat={selectedChat}
                         />
                     </>
                 ) : (
