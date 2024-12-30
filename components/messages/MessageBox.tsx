@@ -62,7 +62,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ messages, setMessages,selectedC
     return (
         <div>
             <MessageList messages={messages} />
-            <MessageInput onSendMessage={handleSendMessage} message={message} setMessage={setMessage} />
+            <MessageInput onSendMessage={handleSendMessage} message={message} setMessage={setMessage} setMessages={setMessages} />
         </div>
     )
 }
