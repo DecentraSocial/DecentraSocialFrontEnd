@@ -1,5 +1,6 @@
 import React from "react";
 import { ChatType } from "@/utils/types";
+import { useUser } from "@/context/UserContext";
 
 interface ChatSidebarProps {
     currentUserId: string;
@@ -8,7 +9,8 @@ interface ChatSidebarProps {
     onSearch: (searchText: string) => void;
 }
 
-const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentUserId, chats, onChatSelect, onSearch }) => {
+const ChatSidebar: React.FC<ChatSidebarProps> = ({ chats, onChatSelect, onSearch }) => {
+    const {user}=useUser();
     return (
         <div className="w-72 border-r border-neutral-700 rounded-l-xl bg-neutral-800 flex flex-col">
             <div className="p-4 border-b border-neutral-700">
@@ -22,11 +24,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentUserId, chats, onChatS
             <div className="flex-1 overflow-y-auto">
                 {chats.length > 0 ? chats.map((chat) => (
                     <div
-                        key={chat.chatId}
+                        key={chat._id}
                         className="p-4 hover:bg-neutral-700 cursor-pointer border-b border-neutral-700"
                         onClick={() => onChatSelect(chat)}
                     >
-                        <p className="text-white font-medium">{chat.users.map((user => (user.userId != currentUserId && user.username)))}</p>
+                        
+                        <p className="text-white font-medium">{chat.users.map((data => {return (data._id != user?._id && data.username)}))}</p>
                         <p className="text-neutral-400 text-sm truncate">{chat?.latestMessage?.content || ""}</p>
                     </div>
                 )) : (

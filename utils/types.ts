@@ -46,6 +46,7 @@ export type Following = {
 };
 
 export type ChatUserType = {
+  _id: string;
   userId: string;
   username: string;
   picture: string;

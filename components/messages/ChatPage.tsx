@@ -7,7 +7,6 @@ import ChatSidebar from "./ChatSidebar";
 import ChatHeader from "./ChatHeader";
 import NewChatModal from "./NewChatModal";
 import { ChatType, ChatUserType, MessageType } from "@/utils/types";
-import Loading from "../ui/Loading";
 import MessageBox from "./MessageBox";
 
 const ChatPage = () => {
@@ -17,16 +16,26 @@ const ChatPage = () => {
     const [otherUser, setOtherUser] = useState<ChatUserType>();
     const [messages, setMessages] = useState<MessageType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const {socket}=useUser();
+    const {socket,user}=useUser();
 
-    useEffect(() => {
+    useEffect(()=>{
         getAllChats();
+    },[])
+    useEffect(() => {
         socket?.on("chat history",(data)=>{
-            console.log("data received from decentria chat: ",data);
             setMessages(data);
         })
 
-        getAllMessages(selectedChat?._id || "");;
+        if(selectedChat?.users){
+            const secondUser=selectedChat.users.filter((data)=>{return data._id !== user?._id});
+
+            setOtherUser(secondUser[0]);
+        }
+        getAllMessages(selectedChat?._id || "");
+
+        return ()=>{
+            socket?.off("chat history");
+        }
     }, [messages,selectedChat]);
 
     const getAllChats = async () => {
@@ -56,11 +65,9 @@ const ChatPage = () => {
     // }, [selectedChat]);
 
     const getAllMessages=(id:String)=>{
-        console.log("i am inside getAllMessages",id);
         socket?.emit("join chat",{chatId:id});
 
         socket?.on("chat history",(data)=>{
-            console.log("data received from decentria chat: ",data);
             setMessages(data);
         })
     }

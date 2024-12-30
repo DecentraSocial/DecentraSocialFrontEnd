@@ -17,7 +17,6 @@ const MessageBox: React.FC<MessageBoxProps> = ({ messages, setMessages,selectedC
 
     useEffect(()=>{
         socket?.on("chat history",(data)=>{
-            console.log("data received from decentria chat inside the message Box: ",data);
             setMessages(data);
         })
     },[message,messages])
