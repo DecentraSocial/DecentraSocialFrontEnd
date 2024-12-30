@@ -27,7 +27,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentUserId, chats, onChatS
                         onClick={() => onChatSelect(chat)}
                     >
                         <p className="text-white font-medium">{chat.users.map((user => (user.userId != currentUserId && user.username)))}</p>
-                        <p className="text-neutral-400 text-sm truncate">{chat.latestMessage.content}</p>
+                        <p className="text-neutral-400 text-sm truncate">{chat?.latestMessage?.content || ""}</p>
                     </div>
                 )) : (
                     <div className="mx-4 my-4 text-white">

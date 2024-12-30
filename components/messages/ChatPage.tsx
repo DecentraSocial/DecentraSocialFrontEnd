@@ -21,7 +21,11 @@ const ChatPage = () => {
 
     useEffect(() => {
         getAllChats();
-    }, [messages]);
+        socket?.on("chat history",(data)=>{
+            console.log("data received from decentria chat: ",data);
+            setMessages(data);
+        })
+    }, [messages,socket]);
 
     const getAllChats = async () => {
         if (token) {
