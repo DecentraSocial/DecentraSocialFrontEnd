@@ -20,7 +20,9 @@ interface UserContextProps {
     setPosts: React.Dispatch<React.SetStateAction<PostType[]>>;
     refetchUser: () => Promise<void>;
     socket:Socket | null;
-    setSocket:React.Dispatch<React.SetStateAction<Socket | null>>
+    setSocket:React.Dispatch<React.SetStateAction<Socket | null>>;
+    notificationSocket: Socket | null;
+    setNotificationSocket:React.Dispatch<React.SetStateAction<Socket | null>>;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -33,6 +35,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [following, setFollowing] = useState<Following[] | null>(null);
     const [posts, setPosts] = useState<PostType[]>([]);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [notificationSocket, setNotificationSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -124,7 +127,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setPosts,
                 refetchUser,
                 socket,
-                setSocket
+                setSocket,
+                notificationSocket,
+                setNotificationSocket,
+
             }}
         >
             {children}
