@@ -133,6 +133,7 @@ const ChatPage = () => {
                 chats={chats}
                 onChatSelect={handleChatSelect}
                 onSearch={(searchText) => console.log("Searching:", searchText)}
+                followers={followers || []}
             />
             <div className="flex-1 flex flex-col">
                 {selectedChat ? (

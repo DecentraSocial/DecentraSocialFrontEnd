@@ -12,6 +12,7 @@ import { useUser } from "@/context/UserContext";
 import { deleteCookie } from "../setCookie";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import AlphabetAvatar from "@/components/ui/AlphabetAvatar";
+import { FaBell } from "react-icons/fa6";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
@@ -35,6 +36,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             label: "Messages",
             href: "/messages",
             icon: <AiOutlineMessage className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        },
+        {
+            label: "Notifications",
+            href: "/notifications",
+            icon: <FaBell className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Explore",
