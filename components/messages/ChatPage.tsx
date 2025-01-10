@@ -8,6 +8,7 @@ import ChatHeader from "./ChatHeader";
 import NewChatModal from "./NewChatModal";
 import { ChatType, ChatUserType, MessageType } from "@/utils/types";
 import MessageBox from "./MessageBox";
+import { io, Socket } from "socket.io-client";
 
 const ChatPage = () => {
     const [chats, setChats] = useState<ChatType[]>([
@@ -16,33 +17,56 @@ const ChatPage = () => {
     const [otherUser, setOtherUser] = useState<ChatUserType>();
     const [messages, setMessages] = useState<MessageType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const {socket,user}=useUser();
+    const [sockets, setSockets] = useState<Socket | null>(null);
+    const { socket, user, setSocket } = useUser();
 
-    useEffect(()=>{
-        getAllChats();
-    },[])
     useEffect(() => {
-        socket?.on("chat history",(data)=>{
+        getAllChats();
+        const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || "", {
+            autoConnect: false,
+            auth: {
+                token,
+            },
+        });
+        setSockets(newSocket);
+        setSocket(newSocket);
+
+        newSocket.connect();
+        newSocket.on("connect", () => console.log("Socket connected: from message page side", newSocket.id));
+
+        return () => {
+            // Cleanup on unmount
+            if (newSocket) {
+                newSocket.disconnect();
+            }
+        };
+    }, [])
+    useEffect(() => {
+        socket?.on("chat history", (data) => {
             setMessages(data);
         })
 
-        if(selectedChat?.users){
-            const secondUser=selectedChat.users.filter((data)=>{return data._id !== user?._id});
+        if (selectedChat?.users) {
+            const secondUser = selectedChat.users.filter((data) => { return data._id !== user?._id });
 
             setOtherUser(secondUser[0]);
         }
         getAllMessages(selectedChat?._id || "");
 
-        return ()=>{
+        return () => {
             socket?.off("chat history");
         }
-    }, [messages,selectedChat]);
+    }, [messages, selectedChat]);
 
     const getAllChats = async () => {
         if (token) {
             const fetchedChats = await fetchChats(token);
             setChats(fetchedChats.res);
         }
+    }
+
+    const getSocket = async () => {
+
     }
 
     // isko udna nhi @anushka -> yaad rakhna merging waqt
@@ -64,10 +88,10 @@ const ChatPage = () => {
     //     // from the selected chat we have to first fetch all the message of that chat by passing a chatId
     // }, [selectedChat]);
 
-    const getAllMessages=(id:String)=>{
-        socket?.emit("join chat",{chatId:id});
+    const getAllMessages = (id: String) => {
+        socket?.emit("join chat", { chatId: id });
 
-        socket?.on("chat history",(data)=>{
+        socket?.on("chat history", (data) => {
             setMessages(data);
         })
     }
