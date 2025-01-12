@@ -3,10 +3,11 @@ import React, { useState } from "react";
 interface MessageInputProps {
     onSendMessage: (message: string) => void;
     message: string;
-    setMessage: React.Dispatch<React.SetStateAction<string>>
+    setMessage: React.Dispatch<React.SetStateAction<string>>,
+    setMessages: React.Dispatch<React.SetStateAction<any>>,
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, message, setMessage }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, message, setMessage,setMessages }) => {
 
     const handleSend = () => {
         if (message.trim()) {

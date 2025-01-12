@@ -12,7 +12,6 @@ export const fetchChats = async (token: string) => {
         },
       }
     );
-    console.log("allUserAssociatedChats: ", allUserAssociatedChats.data);
     return { res: allUserAssociatedChats.data, error: false };
   } catch (error) {
     console.log("Error getting all posts: ", error);

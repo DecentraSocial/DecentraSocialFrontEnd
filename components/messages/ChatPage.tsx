@@ -1,87 +1,62 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { fetchChats } from "@/utils/chat";
 import ChatSidebar from "./ChatSidebar";
 import ChatHeader from "./ChatHeader";
 import NewChatModal from "./NewChatModal";
 import { ChatType, ChatUserType, MessageType } from "@/utils/types";
-import Loading from "../ui/Loading";
 import MessageBox from "./MessageBox";
+import { io, Socket } from "socket.io-client";
 
 const ChatPage = () => {
     const [chats, setChats] = useState<ChatType[]>([
     ]);
     const [selectedChat, setSelectedChat] = useState<ChatType>();
     const [otherUser, setOtherUser] = useState<ChatUserType>();
-    const [messages, setMessages] = useState<MessageType[]>([
-        {
-            messageId: "msg1",
-            sender: {
-                userId: "user1",
-                username: "Alice",
-                picture: "alice.jpg",
-            },
-            content: "Hi, how are you?",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:00:00Z",
-            updatedAt: "2024-12-28T10:00:00Z",
-        },
-        {
-            messageId: "msg2",
-            sender: {
-                userId: "user2",
-                username: "Bob",
-                picture: "bob.jpg",
-            },
-            content: "I'm doing great, thanks! What about you?",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:02:00Z",
-            updatedAt: "2024-12-28T10:02:00Z",
-        },
-        {
-            messageId: "msg3",
-            sender: {
-                userId: "user1",
-                username: "Alice",
-                picture: "alice.jpg",
-            },
-            content: "I'm good too, just catching up with work.",
-            chatId: "chat1",
-            createdAt: "2024-12-28T10:05:00Z",
-            updatedAt: "2024-12-28T10:05:00Z",
-        },
-        {
-            messageId: "msg4",
-            sender: {
-                userId: "user3",
-                username: "Charlie",
-                picture: "charlie.jpg",
-            },
-            content: "Hey everyone, what's up?",
-            chatId: "chat2",
-            createdAt: "2024-12-28T10:10:00Z",
-            updatedAt: "2024-12-28T10:10:00Z",
-        },
-        {
-            messageId: "msg5",
-            sender: {
-                userId: "user2",
-                username: "Bob",
-                picture: "bob.jpg",
-            },
-            content: "Not much, Charlie. How about you?",
-            chatId: "chat2",
-            createdAt: "2024-12-28T10:12:00Z",
-            updatedAt: "2024-12-28T10:12:00Z",
-        },
-    ]);
+    const [messages, setMessages] = useState<MessageType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sockets, setSockets] = useState<Socket | null>(null);
+    const { socket, user, setSocket } = useUser();
 
     useEffect(() => {
+        const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || "", {
+            autoConnect: false,
+            auth: {
+                token,
+            },
+        });
+        setSockets(newSocket);
+        setSocket(newSocket);
+
+        newSocket.connect();
+        newSocket.on("connect", () => console.log("Socket connected: from message page side", newSocket.id));
         getAllChats();
-    }, []);
+        return () => {
+            // Cleanup on unmount
+            if (newSocket) {
+                newSocket.disconnect();
+            }
+        };
+    }, [])
+
+    useEffect(() => {
+        socket?.on("chat history", (data) => {
+            setMessages(data);
+        })
+
+        if (selectedChat?.users) {
+            const secondUser = selectedChat.users.filter((data) => { return data._id !== user?._id });
+
+            setOtherUser(secondUser[0]);
+        }
+        getAllMessages(selectedChat?._id || "");
+
+        return () => {
+            socket?.off("chat history");
+        }
+    }, [messages, selectedChat]);
 
     const getAllChats = async () => {
         if (token) {
@@ -90,15 +65,13 @@ const ChatPage = () => {
         }
     }
 
-    useEffect(() => {
-        if (selectedChat?.users) {
-            const secondUser = selectedChat.users.find(
-                (user) => user.userId !== currentUser?._id
-            );
-            console.log("secondUser: ", secondUser);
-            setOtherUser(secondUser); // Set the single user
-        }
-    }, [selectedChat]);
+    const getAllMessages = (id: String) => {
+        socket?.emit("join chat", { chatId: id });
+
+        socket?.on("chat history", (data) => {
+            setMessages(data);
+        })
+    }
 
     const { user: currentUser, followers, token } = useUser();
 
@@ -123,8 +96,8 @@ const ChatPage = () => {
         // setIsModalOpen(false);
     };
 
-    if (selectedChat && !otherUser)
-        return <Loading />
+    // if (selectedChat && !otherUser)
+    //     return <Loading />
 
     return (
         <div className="ml-10 md:ml-20 bg-neutral-900 flex w-[90%] md:w-[93%] h-full">
@@ -146,6 +119,7 @@ const ChatPage = () => {
                         <MessageBox
                             messages={messages}
                             setMessages={setMessages}
+                            selectedChat={selectedChat}
                         />
                     </>
                 ) : (

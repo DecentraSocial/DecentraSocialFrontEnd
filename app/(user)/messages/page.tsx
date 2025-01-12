@@ -1,4 +1,4 @@
-import React from 'react'
+"use client"
 import ChatPage from '@/components/messages/ChatPage'
 
 const page = () => {

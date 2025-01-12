@@ -65,7 +65,7 @@ const Login = ({ setUseTestAadhaar, useTestAadhaar }: LoginProps) => {
             if (res.data.isLoggedIn) {
                 setAuthCookie(res.data.token);
                 toast.success("Logged in successfully!");
-                router.replace('/home');
+                router.push('/home');
             } else {
                 toast.error('Login failed. Invalid credentials.');
             }
