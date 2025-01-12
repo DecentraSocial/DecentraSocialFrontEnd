@@ -27,7 +27,7 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
     const [showPopover, setShowPopover] = useState<{ [key: string]: boolean }>({});
     const popoverRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-    const { setPosts: setCurrentUserPosts } = useUser()
+    const { setPosts: setCurrentUserPosts,user } = useUser()
 
     // Function to handle clicks outside the popover
     useEffect(() => {
@@ -90,6 +90,8 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
                         )
                     );
                 }
+
+                // notification
             } else if (likeRes.res.message === "post has been unliked sucessfully") {
                 setPosts((prevPosts) =>
                     prevPosts.map(post =>

@@ -70,3 +70,14 @@ export type ChatType = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type NotificationType = {
+  // category: string;
+  message: string; 
+  createdAt: string; 
+  // sender: {
+  //   username: string;
+  //   picture?: string;
+  // };
+};
+
