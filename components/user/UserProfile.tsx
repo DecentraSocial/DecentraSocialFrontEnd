@@ -33,31 +33,31 @@ const UserProfile = () => {
     // const [followStatus, setFollowStatus] = useState<{ [key: string]: boolean }>(
     //     following?.reduce((acc, user) => ({ ...acc, [user._id]: true }), {})
     // );
-    const [sockets, setSockets] = useState<Socket | null>(null)
+    // const [sockets, setSockets] = useState<Socket | null>(null)
     const { user: currentUser, setUser: setCurrentUser, isCurrentUserLoading, token, setFollowing, setNotificationSocket, notificationSocket } = useUser();
 
     const params = useParams<UserParamsType>()
 
     useEffect(() => {
         getUserDetails();
-        const newSocket = io(process.env.NEXT_PUBLIC_NOTIFICATION_SOCKET_IO_URL || "", {
-            autoConnect: false,
-            auth: {
-                token,
-            },
-        });
-        setNotificationSocket(newSocket);
-        setSockets(newSocket);
+        // const newSocket = io(process.env.NEXT_PUBLIC_NOTIFICATION_SOCKET_IO_URL || "", {
+        //     autoConnect: false,
+        //     auth: {
+        //         token,
+        //     },
+        // });
+        // setNotificationSocket(newSocket);
+        // setSockets(newSocket);
 
-        newSocket.connect();
-        newSocket.on("connect", () => console.log("Socket connected: from message page side", newSocket.id));
+        // newSocket.connect();
+        // newSocket.on("connect", () => console.log("Socket connected: from message page side", newSocket.id));
 
-        return () => {
-            // Cleanup on unmount
-            if (newSocket) {
-                newSocket.disconnect();
-            }
-        };
+        // return () => {
+        //     // Cleanup on unmount
+        //     if (newSocket) {
+        //         newSocket.disconnect();
+        //     }
+        // };
     }, []);
 
     const getUserDetails = async () => {
@@ -173,6 +173,16 @@ const UserProfile = () => {
                 }
                 return prevUser;
             });
+            // set follower notification
+            const setNotification=()=>{
+                const data={
+                    user1: userToFollow.username,
+                    user2: userToFollow?.username,
+                    messageType:"follow"
+                }
+                  notificationSocket?.emit("set-notfication",data);
+            }
+            setNotification();
         }
         else
             toast.error(`Could not follow ${user?.username}. Try again.`)

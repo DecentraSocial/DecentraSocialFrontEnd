@@ -21,7 +21,6 @@ const ChatPage = () => {
     const { socket, user, setSocket } = useUser();
 
     useEffect(() => {
-        getAllChats();
         const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || "", {
             autoConnect: false,
             auth: {
@@ -33,7 +32,7 @@ const ChatPage = () => {
 
         newSocket.connect();
         newSocket.on("connect", () => console.log("Socket connected: from message page side", newSocket.id));
-
+        getAllChats();
         return () => {
             // Cleanup on unmount
             if (newSocket) {
@@ -41,6 +40,7 @@ const ChatPage = () => {
             }
         };
     }, [])
+
     useEffect(() => {
         socket?.on("chat history", (data) => {
             setMessages(data);
@@ -64,29 +64,6 @@ const ChatPage = () => {
             setChats(fetchedChats.res);
         }
     }
-
-    const getSocket = async () => {
-
-    }
-
-    // isko udna nhi @anushka -> yaad rakhna merging waqt
-    // useEffect(() => {
-    //     if (selectedChat?.users) {
-    //         const secondUser = selectedChat.users.find(
-    //             (user) => { return user.userId !== currentUser?._id
-    //     });
-    //         console.log("currentUser: ", currentUser);
-    //         console.log("secondUser: ", secondUser);
-    //         setOtherUser(secondUser); // Set the single user
-
-    //         // console.log("selected chat",selectedChat)
-    //     }
-
-    //     console.log("selected chat",selectedChat)
-    //     getAllMessages(selectedChat?._id || "67700174cd16f63f4e85e8ee");
-
-    //     // from the selected chat we have to first fetch all the message of that chat by passing a chatId
-    // }, [selectedChat]);
 
     const getAllMessages = (id: String) => {
         socket?.emit("join chat", { chatId: id });

@@ -1,4 +1,3 @@
-"use client"
 import UserProfile from '@/components/user/UserProfile'
 
 const page = () => {
@@ -39,7 +38,7 @@ const page = () => {
     //     }
     //     notificationSocket?.emit("get-notification",data);
 
-    //     notificationSocket?.on("notification-send",(data)=>{
+    //     notificationSocket?.on("notification-send",(data:any)=>{
     //         const parsedNotifications = data.map((item: string) => JSON.parse(item));
     //         console.log("Parsed notifications:", parsedNotifications);
     //     })
@@ -47,10 +46,6 @@ const page = () => {
     return (
         <div>
             <UserProfile />
-            {/* <button onClick={()=>setNotification()}> send Notification</button>
-            <br />
-            <br />
-            <button onClick={()=>getNotification()}> get Notification</button> */}
         </div>
     )
 }

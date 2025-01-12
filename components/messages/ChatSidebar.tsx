@@ -16,6 +16,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentUserId, chats, onChatS
     const [filteredFollowers, setFilteredFollowers] = useState(followers);
     const [visibleCount, setVisibleCount] = useState(5);
 
+    // console.log(chats)
     useEffect(() => {
         if (searchText.trim()) {
             const searchResults = followers.filter((follower) =>
@@ -86,10 +87,10 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentUserId, chats, onChatS
                             >
                                 <p className="text-white font-medium">
                                     {chat.users
-                                        .filter((user) => user.userId !== currentUserId)
+                                        .filter((user) => user._id !== currentUserId)
                                         .map((user) => user.username)}
                                 </p>
-                                <p className="text-neutral-400 text-sm truncate">{chat.latestMessage.content}</p>
+                                <p className="text-neutral-400 text-sm truncate">{chat.latestMessage?.content || ""}</p>
                             </div>
                         ))
                     ) : (
