@@ -9,6 +9,7 @@ import NewChatModal from "./NewChatModal";
 import { ChatType, ChatUserType, MessageType } from "@/utils/types";
 import MessageBox from "./MessageBox";
 import { io, Socket } from "socket.io-client";
+import axios from "axios";
 
 const ChatPage = () => {
     const [chats, setChats] = useState<ChatType[]>([
@@ -18,7 +19,7 @@ const ChatPage = () => {
     const [messages, setMessages] = useState<MessageType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sockets, setSockets] = useState<Socket | null>(null);
-    const { socket, user, setSocket } = useUser();
+    const { socket, user, setSocket, following } = useUser();
 
     useEffect(() => {
         const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_IO_URL || "", {
@@ -75,17 +76,17 @@ const ChatPage = () => {
 
     const { user: currentUser, followers, token } = useUser();
 
-    const following = [
-        { id: "3", name: "Alice Cooper" },
-        { id: "4", name: "Bob Dylan" },
-    ];
+    // const following = [
+    //     { id: "3", name: "Alice Cooper" },
+    //     { id: "4", name: "Bob Dylan" },
+    // ];
 
     const handleChatSelect = (chat: ChatType) => {
         setSelectedChat(chat);
         // Fetch messages for selected chat
     };
 
-    const handleStartNewChat = (user: { id: string; name: string }) => {
+    const handleStartNewChat = async (id: string) => {
         // const newChat = {
         //     id: user.id,
         //     name: user.name,
@@ -94,6 +95,8 @@ const ChatPage = () => {
         // setChats((prev) => [newChat, ...prev]);
         // setSelectedChat(user.id);
         // setIsModalOpen(false);
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_IO_URL}/`, { userdId: id });
+        console.log("chat search res: ", res);
     };
 
     // if (selectedChat && !otherUser)
@@ -136,7 +139,7 @@ const ChatPage = () => {
             </div>
             {isModalOpen && (
                 <NewChatModal
-                    following={following}
+                    following={following!}
                     onClose={() => setIsModalOpen(false)}
                     onStartChat={handleStartNewChat}
                 />
