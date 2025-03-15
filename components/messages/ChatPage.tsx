@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
-import { fetchChats } from "@/utils/chat";
+import { accessChats, fetchChats } from "@/utils/chat";
 import ChatSidebar from "./ChatSidebar";
 import ChatHeader from "./ChatHeader";
 import NewChatModal from "./NewChatModal";
@@ -95,8 +95,13 @@ const ChatPage = () => {
         // setChats((prev) => [newChat, ...prev]);
         // setSelectedChat(user.id);
         // setIsModalOpen(false);
-        const res = await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_IO_URL}/`, { userdId: id });
-        console.log("chat search res: ", res);
+        if (token) {
+            const res = await accessChats(token, id);
+            console.log(res)
+            if(!res.error){
+                setIsModalOpen(false);
+            }
+        }
     };
 
     // if (selectedChat && !otherUser)

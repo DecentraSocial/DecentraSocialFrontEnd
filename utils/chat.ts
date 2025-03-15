@@ -32,6 +32,7 @@ export const accessChats = async (token: string, userId: string) => {
         },
       }
     );
+    return { res: userCreateNewChat.data, error: false };
   } catch (error) {
     console.log("Error getting all posts: ", error);
     return { res: error, error: true };
