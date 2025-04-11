@@ -22,6 +22,8 @@ type UserParamsType = {
 };
 
 const UserProfile = () => {
+    // const {useUser}=
+    // const {user}
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
     const [user, setUser] = useState<ProfileType>();
@@ -176,7 +178,7 @@ const UserProfile = () => {
             // set follower notification
             const setNotification=()=>{
                 const data={
-                    user1: userToFollow.username,
+                    user1: currentUser?.username,
                     user2: userToFollow?.username,
                     messageType:"follow"
                 }

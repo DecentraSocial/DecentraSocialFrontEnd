@@ -43,7 +43,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ notification }) => 
             )} */}
             <div className="flex-1">
                 <p>
-                    <span className="font-bold">{"Pushpa"}</span> {message}
+                    <span className="font-bold"></span> {message}
                 </p>
                 <p className="text-sm text-neutral-400">{formatTime(createdAt)}</p>
             </div>

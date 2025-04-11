@@ -14,12 +14,15 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ name, profilePic, onSearchMessa
     const {notificationSocket,user} = useUser()
 
     const gmeetNotificationSend=()=>{
-        console.log("gmeet notification send")
+        console.log("gmeet notification send");
+        const gmeetLink = "https://www.videosdk.live/prebuilt/demo";
+        window.open(gmeetLink, "_blank")
         const data={
             username:name,
-            gmeetLink:"https://meet.google.com/txm-uosf-gse?authuser=0",
+            gmeetLink,
             sender:user?.username
         }
+        console.log("Gmeet data: ", data)
         notificationSocket?.emit("sent-gmeetLink",data)
     }
     return (
