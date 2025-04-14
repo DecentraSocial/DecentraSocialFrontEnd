@@ -26,31 +26,11 @@ const HomeFeed = () => {
     const [imageUrls, setImageUrls] = useState<string[]>();
     const [videoUrls, setVideoUrls] = useState<string[]>();
 
-    const { user, isCurrentUserLoading, token, setPosts: setUserPosts,setNotificationSocket } = useUser();
+    const { user, isCurrentUserLoading, token, setPosts: setUserPosts } = useUser();
 
     useEffect(() => {
         getDetails()
     }, [])
-    
-        // notification socket setup
-        useEffect(() => {
-            const newSocket = io(process.env.NEXT_PUBLIC_NOTIFICATION_SOCKET_IO_URL || "", {
-                autoConnect: false,
-                auth: {
-                    token,
-                },
-            });
-            setNotificationSocket(newSocket);
-    
-            newSocket.connect();
-            newSocket.on("connect", () => console.log("Socket connected: from layout notification page side", newSocket.id));
-            return () => {
-                // Cleanup on unmount
-                if (newSocket) {
-                    newSocket.disconnect();
-                }
-            };
-        }, [])
     const getDetails = async () => {
         try {
             // All posts
@@ -103,7 +83,6 @@ const HomeFeed = () => {
         setVideoUrls(uploadedVideos);
         setIsUploading(false);
     };
-
 
     const handleAddMedia = (media: string, event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {

@@ -8,15 +8,16 @@ import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoHome, IoSearch } from "react-icons/io5";
+import { FaBell } from "react-icons/fa6";
 import { useUser } from "@/context/UserContext";
 import { deleteCookie } from "../setCookie";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import AlphabetAvatar from "@/components/ui/AlphabetAvatar";
-import { FaBell } from "react-icons/fa6";
+import NotificationSocket from "@/components/notifications/NotificationSocket";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = useState(false);
-    const { user} = useUser();
+    const { user } = useUser();
 
     const router = useRouter();
 
@@ -106,6 +107,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Main content area */}
             <main className="flex-1 p-4 md:p-10 bg-neutral-900 border-l border-neutral-700">
+                <NotificationSocket />
                 {children}
             </main>
         </div>

@@ -22,12 +22,13 @@ interface PostProps {
 }
 
 const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProps) => {
+    const {notificationSocket} = useUser();
     const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
     const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
     const [showPopover, setShowPopover] = useState<{ [key: string]: boolean }>({});
     const popoverRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-    const { setPosts: setCurrentUserPosts } = useUser()
+    const { setPosts: setCurrentUserPosts,user } = useUser()
 
     // Function to handle clicks outside the popover
     useEffect(() => {
@@ -71,6 +72,7 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
     // Like
     const handleLike = async (postId: string) => {
         const likeRes = await likePost(token, postId);
+        const getPostUserName=await getPostUserNameData(postId);
         if (!likeRes.error) {
             // Update the posts state to reflect the new like
             if (likeRes.res.message === "post has been liked sucessfully") {
@@ -90,6 +92,14 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
                         )
                     );
                 }
+
+                // sent like notification
+                const data={
+                    user1:user?.username,
+                    username:getPostUserName
+                }
+                notificationSocket?.emit('like-notification',data)
+
             } else if (likeRes.res.message === "post has been unliked sucessfully") {
                 setPosts((prevPosts) =>
                     prevPosts.map(post =>
@@ -114,6 +124,13 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
             else
                 toast.error("Error liking the post!")
         }
+    }
+
+    const getPostUserNameData=async (postId: string) => {
+        const postData = await posts.filter((post) => post._id === postId);
+        // return postUserNameData;
+        // console.log("post Username data",postData);
+        return postData[0].username;
     }
 
     // Comment
@@ -174,6 +191,13 @@ const Post = ({ token, posts, currentUserId, setPosts, isProfilePage }: PostProp
             }
 
             setCommentText((prev) => ({ ...prev, [postId]: '' }));
+            // set comment notification
+            const postUserNameData = await getPostUserNameData(postId);
+            const data = {
+                user1: user?.username,
+                username: postUserNameData,
+            }
+            notificationSocket?.emit('comment-notification', data);
         } else {
             toast.error("Error commenting on the post!")
         }
