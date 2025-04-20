@@ -8,7 +8,8 @@ import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoHome, IoSearch } from "react-icons/io5";
-import { FaBell } from "react-icons/fa6";
+import { FaBell } from "react-icons/fa6"
+import { FaHandHoldingUsd } from "react-icons/fa";;
 import { useUser } from "@/context/UserContext";
 import { deleteCookie } from "../setCookie";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
@@ -58,6 +59,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         //     href: "/settings",
         //     icon: <IoMdSettings className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         // },
+        {
+            label: "Crowd Funding",
+            href: "/crowdfunding",
+            icon: <FaHandHoldingUsd className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        },
     ];
 
     if (!user)
