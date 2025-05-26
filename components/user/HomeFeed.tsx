@@ -15,6 +15,7 @@ import Post from "./Post";
 import GlowButton from "../ui/GlowButton";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
+import { hateSpeechTokenMap } from "@/lib/hatespeech"
 import { io, Socket } from "socket.io-client";
 
 const HomeFeed = () => {
@@ -100,6 +101,16 @@ const HomeFeed = () => {
             toast.error("Please add some text, an image, or a video before posting!");
             return;
         };
+
+        // Basic hate speech check
+        const text = newPostText?.toLowerCase() || "";
+        const tokens = text.split(/\s+/); // split by whitespace
+        const containsHate = tokens.some(token => hateSpeechTokenMap[token]);
+
+        if (containsHate) {
+            alert("Your post contains language that violates our community standards. Please edit and try again.");
+            return;
+        }
 
         // Wait for media files to upload
         await uploadMediaFiles(); // Ensure this completes before proceeding
