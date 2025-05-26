@@ -2,7 +2,11 @@
 import React, { useState } from 'react'
 import ExpandingButton from '../ui/ExpandingButton'
 
-const CreateCampaign = (createCampaign: any) => {
+interface CreateCampaignPageProps {
+    createCampaign: (campaign: any) => Promise<any>;
+}
+
+const CreateCampaignPage: React.FC<CreateCampaignPageProps> = ({ createCampaign }) => {
     const [campaign, setCampaign] = useState({
         title: "",
         decription: "",
@@ -106,4 +110,4 @@ const CreateCampaign = (createCampaign: any) => {
     )
 }
 
-export default CreateCampaign
+export default CreateCampaignPage
