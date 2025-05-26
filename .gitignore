@@ -8,6 +8,7 @@
 
 # testing
 /coverage
+/coverage.json
 
 # next.js
 /.next/
@@ -35,3 +36,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .qodo
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types

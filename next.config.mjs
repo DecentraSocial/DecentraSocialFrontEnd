@@ -16,6 +16,7 @@ const nextConfig = {
         port: "",
       },
     ],
+    domains: ["lavender-junior-junglefowl-435.mypinata.cloud"],
   },
 };
 

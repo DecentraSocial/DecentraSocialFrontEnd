@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { LuUser2 } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { AiOutlineMessage } from "react-icons/ai";
 import { IoHome, IoSearch } from "react-icons/io5";
+import { RiNftFill } from "react-icons/ri";
 import { FaBell } from "react-icons/fa6"
 import { FaHandHoldingUsd } from "react-icons/fa";;
 import { useUser } from "@/context/UserContext";
@@ -63,6 +64,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             label: "Crowd Funding",
             href: "/crowdfunding",
             icon: <FaHandHoldingUsd className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
+        },
+        {
+            label: "NFT Marketplace",
+            href: "/nft",
+            icon: <RiNftFill className="text-neutral-200 h-5 w-5 flex-shrink-0" />,
         },
     ];
 

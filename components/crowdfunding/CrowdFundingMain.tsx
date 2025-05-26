@@ -261,7 +261,6 @@ const CrowdFundingMain = () => {
             </TabsList>
             <div className="mt-2 p-4 rounded-md">
               <TabsContent value="all-campaigns">
-                {/* <UserList users={followers} /> */}
                 <AllCampaigns title="All Listed Campaigns" setOpenModal={setOpenModal} />
               </TabsContent>
               <TabsContent value="my-campaigns">
