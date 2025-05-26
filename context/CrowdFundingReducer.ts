@@ -13,7 +13,7 @@ export interface StateType {
 export type ActionType =
   | { type: "SET_ACCOUNT"; account: string }
   | { type: "SET_PROVIDER"; providers: Record<string, unknown> }
-  | { type: "SET_CONTRACT"; contract: Record<string, unknown> }
+  | { type: "SET_CONTRACT"; contract: any }
   | { type: "GET_ALL_COMPAIGN"; get: any[] }
   | { type: "SET_DONATE"; donate: number }
   | { type: "SET_TITLE"; title: string }

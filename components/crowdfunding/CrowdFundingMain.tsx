@@ -19,7 +19,6 @@ declare global {
   }
 }
 
-
 const followers = [
   { username: "jane_doe", fullName: "Jane Doe" },
   { username: "tech_guru", fullName: "Alex Thompson" },
