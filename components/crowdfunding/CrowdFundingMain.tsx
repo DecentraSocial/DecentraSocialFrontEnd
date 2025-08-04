@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Web3 from "web3";
+import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { BanIcon, MoreHorizontalIcon } from "lucide-react";
 import { ABI, ADDRESS } from "@/abis/crowdfundingAbi";
@@ -91,7 +93,7 @@ const CrowdFundingMain = () => {
     accounts,
     id
   }, dispatch] = useCrowdFunding();
-
+  const router = useRouter();
   const [walletAddress, setWalletAddress] = useState("");
   const [getAll, setAll] = useState<any[]>([]);
   const [userAll, setUserAll] = useState<any[]>([]);
@@ -111,6 +113,17 @@ const CrowdFundingMain = () => {
   const connect = async () => {
     try {
       if (!provider) {
+        toast.success('Please install MetaMask', {
+          style: {
+            border: '1px solid #713200',
+            padding: '16px',
+            color: 'yellow',
+          },
+          iconTheme: {
+            primary: 'yellow',
+            secondary: 'brown',
+          },
+        });
         alert("Please install MetaMask");
         return;
       }
@@ -164,9 +177,11 @@ const CrowdFundingMain = () => {
           new Date(deadline).getTime()
         )
         .send({ from: accounts });
-
-      console.log("Contract created successfully:", tx);
+      toast.success("Campaign created successfully!");
+      console.log("Campaign created successfully:", tx);
+      router.push("/crowdfunding")
     } catch (error) {
+      toast.error("Failed to create campaign. Please try again.");
       console.error("Failed to create campaign:", error);
     }
   };
