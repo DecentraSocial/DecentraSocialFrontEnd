@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { UserProvider } from "@/context/UserContext";
+import { CrowdFundingProvider } from "@/context/CrowdFundingProvider";
+import reducer, { initialState } from "@/context/CrowdFundingReducer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,8 +22,10 @@ export default function RootLayout ({
     <html lang="en">
       <body className={`${inter.className} bg-[#030014] overflow-y-scroll overflow-x-hidden`}>
         <UserProvider>
-          <Toaster />
-          {children}
+          <CrowdFundingProvider initialState={initialState} reducer={reducer}>
+            <Toaster />
+            {children}
+          </CrowdFundingProvider>
         </UserProvider>
       </body>
     </html>

@@ -3,8 +3,7 @@ import AllNotifications from "@/components/notifications/AllNotifications"
 
 const page = () => {
     return (
-        <div className='px-8 text-white'>
-            Notifications
+        <div>
             <AllNotifications />
         </div>
     )

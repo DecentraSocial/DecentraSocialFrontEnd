@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 interface ExpandingButtonProps {
     label: string;
-    onClick?: () => void;
+    onClick?: (e?: any) => void;
     className?: string;
 }
 

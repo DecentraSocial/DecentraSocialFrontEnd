@@ -15,6 +15,7 @@ import Post from "./Post";
 import GlowButton from "../ui/GlowButton";
 import Loading from "../ui/Loading";
 import AlphabetAvatar from "../ui/AlphabetAvatar";
+import { hateSpeechTokenMap } from "@/lib/hatespeech"
 import { io, Socket } from "socket.io-client";
 
 const HomeFeed = () => {
@@ -26,31 +27,11 @@ const HomeFeed = () => {
     const [imageUrls, setImageUrls] = useState<string[]>();
     const [videoUrls, setVideoUrls] = useState<string[]>();
 
-    const { user, isCurrentUserLoading, token, setPosts: setUserPosts,setNotificationSocket } = useUser();
+    const { user, isCurrentUserLoading, token, setPosts: setUserPosts } = useUser();
 
     useEffect(() => {
         getDetails()
     }, [])
-    
-        // notification socket setup
-        useEffect(() => {
-            const newSocket = io(process.env.NEXT_PUBLIC_NOTIFICATION_SOCKET_IO_URL || "", {
-                autoConnect: false,
-                auth: {
-                    token,
-                },
-            });
-            setNotificationSocket(newSocket);
-    
-            newSocket.connect();
-            newSocket.on("connect", () => console.log("Socket connected: from layout notification page side", newSocket.id));
-            return () => {
-                // Cleanup on unmount
-                if (newSocket) {
-                    newSocket.disconnect();
-                }
-            };
-        }, [])
     const getDetails = async () => {
         try {
             // All posts
@@ -104,7 +85,6 @@ const HomeFeed = () => {
         setIsUploading(false);
     };
 
-
     const handleAddMedia = (media: string, event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const filesArray = Array.from(event.target.files);
@@ -121,6 +101,16 @@ const HomeFeed = () => {
             toast.error("Please add some text, an image, or a video before posting!");
             return;
         };
+
+        // Basic hate speech check
+        const text = newPostText?.toLowerCase() || "";
+        const tokens = text.split(/\s+/); // split by whitespace
+        const containsHate = tokens.some(token => hateSpeechTokenMap[token]);
+
+        if (containsHate) {
+            alert("Your post contains language that violates our community standards. Please edit and try again.");
+            return;
+        }
 
         // Wait for media files to upload
         await uploadMediaFiles(); // Ensure this completes before proceeding

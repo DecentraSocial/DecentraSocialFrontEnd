@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams } from 'next/navigation'
 import { motion } from "framer-motion";
@@ -22,6 +22,8 @@ type UserParamsType = {
 };
 
 const UserProfile = () => {
+    // const {useUser}=
+    // const {user}
     const [activeTab, setActiveTab] = useState("posts");
     const [hoveringUserId, setHoveringUserId] = useState<string | null>(null);
     const [user, setUser] = useState<ProfileType>();
@@ -174,13 +176,13 @@ const UserProfile = () => {
                 return prevUser;
             });
             // set follower notification
-            const setNotification=()=>{
-                const data={
-                    user1: userToFollow.username,
+            const setNotification = () => {
+                const data = {
+                    user1: currentUser?.username,
                     user2: userToFollow?.username,
-                    messageType:"follow"
+                    messageType: "follow"
                 }
-                  notificationSocket?.emit("set-notfication",data);
+                notificationSocket?.emit("set-notfication", data);
             }
             setNotification();
         }

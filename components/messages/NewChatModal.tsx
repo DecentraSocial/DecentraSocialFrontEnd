@@ -1,16 +1,18 @@
+import { Following } from "@/utils/types";
 import React, { useState } from "react";
 
 interface NewChatModalProps {
-    following: { id: string; name: string }[];
+    following: Following[];
     onClose: () => void;
-    onStartChat: (user: { id: string; name: string }) => void;
+    onStartChat: (_id: string) => void;
+    // onStartChat: (user: { _id: string; name: string }) => void;
 }
 
 const NewChatModal: React.FC<NewChatModalProps> = ({ following, onClose, onStartChat }) => {
     const [search, setSearch] = useState("");
 
     const filteredUsers = following.filter((user) =>
-        user.name.toLowerCase().includes(search.toLowerCase())
+        user.username.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
@@ -36,11 +38,11 @@ const NewChatModal: React.FC<NewChatModalProps> = ({ following, onClose, onStart
                     {filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
                             <div
-                                key={user.id}
+                                key={user._id}
                                 className="flex items-center justify-between p-2 hover:bg-neutral-700 rounded cursor-pointer"
-                                onClick={() => onStartChat(user)}
+                                onClick={() => onStartChat(user._id)}
                             >
-                                <span className="text-white">{user.name}</span>
+                                <span className="text-white">{user.username}</span>
                                 <button className="text-blue-600 hover:text-blue-400">
                                     Start Chat
                                 </button>
